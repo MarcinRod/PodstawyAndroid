@@ -351,13 +351,13 @@ Funkcje lambda to krótkie, anonimowe funkcje, które można przypisać do zmien
 - **Lambda bez parametrów:**
   ```kotlin
   val greeting = { println("Cześć!") }
-  greeting() // wypiśe: Cześć!
+  greeting() // wypisze: Cześć!
   ```
 
 - **Lambda z jednym parametrem:**
   ```kotlin
   val double = { x: Int -> x * 2 }
-  println(double(5)) // wypiśe: 10
+  println(double(5)) // wypisze: 10
   ```
 
 - **Lambda jako argument funkcji:**
