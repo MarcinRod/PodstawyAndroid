@@ -164,13 +164,13 @@ Kotlin definiuje też kilka operatorów opisanych szerzej w innych sekcjach tego
 - **Łączenie:** Napisy można łączyć za pomocą operatora `+`:
   ```kotlin
   val name = "Jan"
-  val greeting = "Ćześć, " + name + "!"
+  val greeting = "Cześć, " + name + "!"
   ```
 
 - **Interpolacja:** Najczęściej używany sposób – wstawianie wartości zmiennych bezpośrednio do tekstu za pomocą `$`:
   ```kotlin
   val name = "Jan"
-  val greeting = "Ćześć, $name!"
+  val greeting = "Cześć, $name!"
   val age = 20
   val info = "Masz ${age + 1} lat"
   ```
@@ -303,7 +303,7 @@ fun add(a: Int, b: Int): Int {
 }
 
 // Funkcja jako wyrażenie (skrótowa forma):
-fun greet(name: String) = "Ćześć, $name!"
+fun greet(name: String) = "Cześć, $name!"
 ```
 
 ### Rodzaje argumentów funkcji
@@ -311,10 +311,10 @@ fun greet(name: String) = "Ćześć, $name!"
 - **Argumenty domyślne:** Parametrom można przypisać domyślną wartość.
   ```kotlin
   fun greet(name: String = "Gość") {
-      println("Ćześć, $name!")
+      println("Cześć, $name!")
   }
-  greet() // Ćześć, Gość!
-  greet("Anna") // Ćześć, Anna!
+  greet() // Cześć, Gość!
+  greet("Anna") // Cześć, Anna!
   ```
 
 - **Argumenty nazwane:** Argumenty można przekazywać po nazwie, co zwiększa czytelność. Nie trzeba też przejmować się kolejnością argumentów.
@@ -350,8 +350,8 @@ Funkcje lambda to krótkie, anonimowe funkcje, które można przypisać do zmien
 
 - **Lambda bez parametrów:**
   ```kotlin
-  val greeting = { println("Ćześć!") }
-  greeting() // wypiśe: Ćześć!
+  val greeting = { println("Cześć!") }
+  greeting() // wypiśe: Cześć!
   ```
 
 - **Lambda z jednym parametrem:**
