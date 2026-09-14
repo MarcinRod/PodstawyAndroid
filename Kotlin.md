@@ -203,7 +203,8 @@ Kotlin definiuje też kilka operatorów opisanych szerzej w innych sekcjach tego
 
 ```kotlin
 val x = 10
-val result = if (x > 5) "duże" else "małe"
+var result: String = ""
+if (x > 5) "duże" else "małe"
 
 when (x) {
     1 -> println("jeden")
@@ -215,13 +216,9 @@ when (x) {
 **Wskazówka:** Wyrażenia warunkowe "mają" wartość:
 ```kotlin
 val x = 10
-
 val result = if (x > 5) "duże" else "małe"
-// rownowazne
-val resultLong: String
-if (x > 5) resultLong = "duże" else resultLong = "małe"
 
-val isHot = temperature > 40
+val isBig = x > 5
 
 ```
 ---
