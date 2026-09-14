@@ -414,17 +414,26 @@ val mutableMap = mutableMapOf("a" to 1, "b" to 2)
 Kotlin pozwala na wygodne przetwarzanie kolekcji za pomocą funkcji wyższego rzędu i lambd. Poniżej najczęściej używane funkcje:
 
 - **`filter`** — zwraca nową kolekcję zawierającą tylko elementy spełniające warunek.
-  Przekazywana lambda przyjmuje jeden argument (element kolekcji, domyślnie `it`) i musi zwracać `Boolean`:
+  Przekazywana lambda przyjmuje jeden argument (element kolekcji) i musi zwracać `Boolean`:
   ```kotlin
   // składnia ogólna:
   kolekcja.filter { element -> warunek_zwracający_Boolean }
 
   val numbers = listOf(1, 2, 3, 4, 5, 6)
-  val even = numbers.filter { it % 2 == 0 }           // [2, 4, 6]
+
+  // pełny zapis — parametr lambdy nazwany jawnie jako "number":
+  val even = numbers.filter { number -> number % 2 == 0 }   // [2, 4, 6]
+
+  // skrócony zapis — "it" to niejawna nazwa jedynego parametru lambdy;
+  // Kotlin pozwala go pominąć, gdy lambda przyjmuje dokładnie jeden argument
+  val evenShort = numbers.filter { it % 2 == 0 }            // [2, 4, 6]
 
   data class Product(val name: String, val price: Double)
   val products = listOf(Product("Sok", 3.99), Product("Kawa", 12.99), Product("Herbata", 6.49))
-  val cheap = products.filter { it.price < 7.0 }      // [Sok, Herbata]
+
+  // to samo zastosowane do listy obiektów:
+  val cheap = products.filter { product -> product.price < 7.0 }  // [Sok, Herbata]
+  val cheapShort = products.filter { it.price < 7.0 }              // [Sok, Herbata]
   ```
 
 - **`map`** — przekształca każdy element kolekcji i zwraca nową listę wyników.
