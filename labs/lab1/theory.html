@@ -1,0 +1,411 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta charset="UTF-8">
+  <title>Laboratorium 1 - Gra w kości - Słownik koncepcji</title>
+  <link rel="icon" type="image/svg+xml" href="../../../assets/android-favicon.svg">
+  <link rel="stylesheet" href="../../../assets/material-icons.css">
+  <link rel="stylesheet" href="../../../codelab-soft-brutalism.css">
+</head>
+<body>
+    <div class="codelab"
+      id="CodelabsCreator"
+      data-title="Laboratorium 1 - Gra w kości - Słownik koncepcji"
+      data-author="by Marcin Rodziewicz">
+    
+      <section class="codelab-step" data-label="Jak korzystać z tego materiału" data-duration="02">
+        <p>Ten dokument uzupełnia ćwiczenie „Gra w kości&quot;. Każda sekcja  ma tę samą budowę:</p>
+<ol><li><strong>Czym jest</strong> – krótka definicja,</li><li><strong>Jak działa</strong> – najważniejsze zasady,</li><li><strong>Gdzie spotkaliśmy to w ćwiczeniu</strong> – konkretne fragmenty kodu,</li><li><strong>Typowe pułapki</strong>.</li></ol>
+<aside class="special"><p>Nie musisz czytać wszystkiego przed laboratorium. Wracaj do konkretnej sekcji, gdy w ćwiczeniu pojawi się nowy termin.</p></aside>
+      </section>
+    
+      <section class="codelab-step" data-label="Activity (Aktywność)" data-duration="08">
+        <h3 is-upgraded>Czym jest</h3>
+<p><code>Activity</code> to komponent aplikacji, który dostarcza <strong>jeden ekran</strong> z interfejsem użytkownika i obsługuje interakcję z użytkownikiem. System Android nie uruchamia aplikacji od funkcji <code>main()</code>. Tworzy obiekt aktywności i wywołuje jej metody cyklu życia, więc to system decyduje, kiedy aktywność powstaje i kiedy jest niszczona.</p>
+<p>W ćwiczeniu używamy <code>AppCompatActivity</code>. To klasa z biblioteki AndroidX, która dziedziczy po <code>Activity</code> i dodaje m.in. pasek aplikacji (<code>ActionBar</code>), motywy i zgodność ze starszymi wersjami Androida. Aktywność jest też obiektem typu <code>Context</code>, więc daje dostęp do zasobów (<code>getString</code>, <code>getColor</code>), uruchamiania innych komponentów (<code>startActivity</code>) i usług systemowych.</p>
+<h3 is-upgraded>Rejestracja w manifeście</h3>
+<p>Każda aktywność musi być zadeklarowana w <code>AndroidManifest.xml</code>, inaczej system jej nie uruchomi (wyjątek <code>ActivityNotFoundException</code>). Kreator <strong>New -&gt; Activity</strong> robi to automatycznie:</p>
+<pre><code class="language-xml">&lt;activity
+    android:name=&quot;.MainActivity&quot;
+    android:exported=&quot;true&quot;&gt;
+    &lt;intent-filter&gt;
+        &lt;action android:name=&quot;android.intent.action.MAIN&quot; /&gt;
+        &lt;category android:name=&quot;android.intent.category.LAUNCHER&quot; /&gt;
+    &lt;/intent-filter&gt;
+&lt;/activity&gt;
+&lt;activity android:name=&quot;.SettingsActivity&quot; android:exported=&quot;false&quot; /&gt;
+</code></pre>
+<ul><li><code>intent-filter</code> z <code>MAIN</code> + <code>LAUNCHER</code> oznacza <strong>aktywność startową</strong>, czyli tę, którą uruchamia ikona aplikacji. Tylko ona powinna mieć ten filtr.</li><li><code>android:exported</code> określa, czy aktywność może być uruchamiana przez inne aplikacje. Dla ekranów wewnętrznych (np. ustawień) ustawiamy <code>false</code>.</li></ul>
+<h3 is-upgraded>Cykl życia</h3>
+<p>Aktywność przechodzi przez stany, a system powiadamia ją o tym metodami zwrotnymi (<em>lifecycle callbacks</em>):</p>
+<pre><code>            onCreate()
+                │
+            onStart() &lt;────────── onRestart()
+                │                     ▲
+            onResume()                │
+                │                     │
+   [ aktywność na pierwszym planie ]  │
+                │                     │
+            onPause()                 │
+                │                     │
+            onStop() ─────────────────┘ (użytkownik wraca)
+                │
+            onDestroy()
+</code></pre>
+<table><thead><tr><th>Metoda</th><th>Kiedy jest wywoływana</th><th>Typowe zastosowanie</th></tr></thead><tbody><tr><td><code>onCreate()</code></td><td>Utworzenie aktywności (jednorazowo)</td><td>Wczytanie układu, inicjalizacja widoków i nasłuchiwaczy</td></tr><tr><td><code>onStart()</code></td><td>Aktywność staje się widoczna</td><td>Rejestracja zasobów potrzebnych tylko, gdy ekran jest widoczny</td></tr><tr><td><code>onResume()</code></td><td>Aktywność jest na pierwszym planie i reaguje na dotyk</td><td>Wznowienie animacji, odczytów z czujników</td></tr><tr><td><code>onPause()</code></td><td>Aktywność traci fokus (np. okno dialogowe, przełączenie na inną aplikację)</td><td>Zatrzymanie animacji, szybkie zapisanie stanu</td></tr><tr><td><code>onStop()</code></td><td>Aktywność przestaje być widoczna</td><td>Zwolnienie zasobów, zapis danych</td></tr><tr><td><code>onRestart()</code></td><td>Powrót z <code>onStop()</code> do <code>onStart()</code></td><td>Rzadko używana</td></tr><tr><td><code>onDestroy()</code></td><td>Aktywność jest usuwana</td><td>Ostateczne sprzątanie</td></tr></tbody></table>
+<aside class="special"><p>W <code>onCreate()</code> zawsze wywołujemy <code>super.onCreate(savedInstanceState)</code> jako pierwszą instrukcję. Przy pozostałych metodach również wywołujemy implementację z klasy nadrzędnej. Bez tego aplikacja zgłosi wyjątek <code>SuperNotCalledException</code>.</p></aside>
+<h3 is-upgraded>Zmiany konfiguracji (obrót ekranu)</h3>
+<p>Obrót ekranu, zmiana języka lub trybu ciemnego powoduje <strong>zniszczenie i ponowne utworzenie</strong> aktywności (<code>onPause -&gt; onStop -&gt; onDestroy -&gt; onCreate -&gt; ...</code>). Wszystkie zmienne w polach klasy zostają wtedy utracone. Dotyczy to także naszej gry, bo <code>currentPlayer</code>, <code>playerScores</code> czy <code>diceValuesArray</code> są zwykłymi polami. Spróbuj obrócić emulator w trakcie rozgrywki w <code>MainActivityExtended</code> i zobacz, co się stanie. Rozwiązania to <code>onSaveInstanceState</code> i <code>savedInstanceState</code> (w <code>onCreate</code>) albo <code>ViewModel</code>.</p>
+<h3 is-upgraded>Stos aktywności (back stack)</h3>
+<p>Uruchamiane aktywności trafiają na <strong>stos</strong>. Przycisk <em>Wstecz</em> zdejmuje aktywność ze szczytu (<code>finish()</code> robi to programowo). W ćwiczeniu <code>SettingsActivity</code> wchodzi na stos nad <code>MainActivityExtended</code>, a po <code>finish()</code> użytkownik wraca do poprzedniego ekranu z zachowaną instancją.</p>
+<h3 is-upgraded>Jedna czy wiele aktywności?</h3>
+<p>Rekomendacja Google to <strong>model jednej aktywności</strong> i wiele ekranów w postaci fragmentów lub funkcji Compose. W laboratorium tworzymy trzy aktywności wyłącznie dydaktycznie, żeby pokazać <code>Intent</code> i przekazywanie danych. W późniejszych laboratoriach poznamy nawigację bez dodatkowych aktywności.</p>
+<h3 is-upgraded>Gdzie spotkaliśmy to w ćwiczeniu</h3>
+<ul><li><code>MainActivity</code> z logowaniem wszystkich metod cyklu życia. Uruchom aplikację, naciśnij <em>Home</em>, wróć do aplikacji i obserwuj <strong>Logcat</strong>.</li><li><code>MainActivityExtended</code> i <code>SettingsActivity</code> jako dwa ekrany połączone intencją.</li></ul>
+<h3 is-upgraded>Typowe pułapki</h3>
+<ul><li>Zapomniany wpis w manifeście (przy ręcznym tworzeniu klasy).</li><li>Praca z widokami przed <code>setContentView()</code> / <code>inflate()</code> kończy się <code>NullPointerException</code> lub <code>UninitializedPropertyAccessException</code>.</li><li>Przechowywanie referencji do aktywności w obiektach żyjących dłużej (np. singleton) powoduje wyciek pamięci.</li><li>Zapominanie o utracie stanu przy obrocie ekranu.</li></ul>
+      </section>
+    
+      <section class="codelab-step" data-label="Intencje (Intents)" data-duration="14">
+        <h3 is-upgraded>Czym jest</h3>
+<p><code>Intent</code> to <strong>obiekt opisujący zamiar wykonania operacji</strong>, np. „otwórz ekran ustawień&quot; albo „pokaż stronę WWW&quot;. Intencje są podstawowym sposobem komunikacji między komponentami Androida (aktywnościami, usługami, odbiornikami komunikatów), a także między <strong>różnymi aplikacjami</strong>.</p>
+<h3 is-upgraded>Intencje jawne i niejawne</h3>
+<table><thead><tr><th>/</th><th>Intencja jawna (explicit)</th><th>Intencja niejawna (implicit)</th></tr></thead><tbody><tr><td>Co określamy</td><td>Dokładną klasę docelową</td><td>Akcję (<code>ACTION_VIEW</code>, <code>ACTION_SEND</code>) i dane</td></tr><tr><td>Kto wybiera odbiorcę</td><td>My</td><td>System (np. wyświetla listę aplikacji do wyboru)</td></tr><tr><td>Użycie</td><td>Nawigacja wewnątrz aplikacji</td><td>Współpraca z innymi aplikacjami</td></tr></tbody></table>
+<pre><code class="language-kotlin">// Jawna - używamy w ćwiczeniu
+val intent = Intent(this, SettingsActivity::class.java)
+
+// Niejawna - przykład (otwarcie strony WWW w przeglądarce)
+val web = Intent(Intent.ACTION_VIEW, Uri.parse(&quot;https://www.put.poznan.pl&quot;))
+startActivity(web)
+</code></pre>
+<h3 is-upgraded>Anatomia intencji niejawnej</h3>
+<p>Intencja niejawna nie wskazuje klasy, tylko opisuje <strong>czego chcemy</strong>, a system szuka komponentu, który potrafi to zrobić. Składa się z kilku elementów, które razem tworzą „zapytanie&quot;:</p>
+<table><thead><tr><th>Element</th><th>Przykład</th><th>Znaczenie</th></tr></thead><tbody><tr><td><strong>Action</strong> (akcja)</td><td><code>Intent.ACTION_VIEW</code></td><td>Co chcemy zrobić (wyświetl, wyślij, wybierz...)</td></tr><tr><td><strong>Data (URI)</strong></td><td><code>Uri.parse(&quot;https://...&quot;)</code>, <code>Uri.parse(&quot;geo:52.4,16.9&quot;)</code></td><td>Na jakich danych ma zostać wykonana akcja</td></tr><tr><td><strong>Type (MIME)</strong></td><td><code>&quot;image/*&quot;</code>, <code>&quot;text/plain&quot;</code></td><td>Rodzaj danych, gdy sam URI nie wystarcza (albo zamiast niego)</td></tr><tr><td><strong>Category</strong> (kategoria)</td><td><code>Intent.CATEGORY_DEFAULT</code></td><td>Dodatkowy kontekst, dodawana automatycznie przez <code>startActivity()</code></td></tr><tr><td><strong>Extras</strong></td><td><code>putExtra(Intent.EXTRA_TEXT, &quot;...&quot;)</code></td><td>Dodatkowe dane przekazywane do odbiorcy</td></tr></tbody></table>
+<pre><code class="language-kotlin">val intent = Intent(Intent.ACTION_SEND).apply {
+    type = &quot;text/plain&quot;                         // typ MIME
+    putExtra(Intent.EXTRA_TEXT, &quot;Wynik gry: 15&quot;) // dodatkowe dane
+}
+startActivity(Intent.createChooser(intent, &quot;Udostępnij przez&quot;))
+</code></pre>
+<h3 is-upgraded>Jak system rozwiązuje intencję niejawną (<em>intent resolution</em>)</h3>
+<p>Każda aplikacja może zadeklarować w swoim <code>AndroidManifest.xml</code>, jakie intencje potrafi obsłużyć, dodając do komponentu (najczęściej aktywności) <code>&lt;intent-filter&gt;</code>:</p>
+<pre><code class="language-xml">&lt;activity android:name=&quot;.ShareReceiverActivity&quot; android:exported=&quot;true&quot;&gt;
+    &lt;intent-filter&gt;
+        &lt;action android:name=&quot;android.intent.action.SEND&quot; /&gt;
+        &lt;category android:name=&quot;android.intent.category.DEFAULT&quot; /&gt;
+        &lt;data android:mimeType=&quot;text/plain&quot; /&gt;
+    &lt;/intent-filter&gt;
+&lt;/activity&gt;
+</code></pre>
+<p>Gdy wywołujemy <code>startActivity(intencjaNiejawna)</code>, system Android:</p>
+<ol><li>Przegląda <code>intent-filter</code> <strong>wszystkich zainstalowanych aplikacji</strong> (oraz naszej własnej),</li><li>Szuka tych, które pasują jednocześnie do akcji, danych/typu i kategorii,</li><li>Jeśli pasuje <strong>dokładnie jeden</strong> komponent – uruchamia go od razu,</li><li>Jeśli pasuje <strong>kilka</strong> – pokazuje użytkownikowi okno wyboru (tzw. <em>disambiguation dialog</em>, czyli listę aplikacji typu „Otwórz za pomocą...&quot;),</li><li>Jeśli <strong>nic nie pasuje</strong> – <code>startActivity()</code> rzuca <code>ActivityNotFoundException</code>.</li></ol>
+<aside class="special"><p><strong><code>Intent.createChooser()</code></strong> wymusza wyświetlenie okna wyboru za każdym razem, nawet jeśli jest tylko jedna pasująca aplikacja lub użytkownik ustawił wcześniej domyślną. Warto go używać przy akcjach typu „Udostępnij&quot;, żeby użytkownik mógł świadomie wybrać aplikację, zamiast na stałe wiązać naszą funkcję z jedną konkretną.</p></aside>
+<h3 is-upgraded>Widoczność pakietów od Androida 11 (<code>&lt;queries&gt;</code>)</h3>
+<p>Od Androida 11 (API 30) system domyślnie <strong>ukrywa</strong> przed aplikacją informacje o innych zainstalowanych aplikacjach (ze względu na prywatność). Dotyczy to jednak konkretnie sytuacji, w których <strong>Twój kod sam pyta</strong> system o listę pasujących aplikacji, np. przez <code>PackageManager.queryIntentActivities()</code> lub <code>intent.resolveActivity(packageManager)</code>. Bez odpowiedniej deklaracji takie zapytanie może zwrócić pustą listę / <code>null</code>, mimo że pasująca aplikacja jest zainstalowana.</p>
+<p>Deklarację widoczności dodaje się w elemencie <code>&lt;queries&gt;</code> w manifeście:</p>
+<pre><code class="language-xml">&lt;manifest&gt;
+    &lt;queries&gt;
+        &lt;intent&gt;
+            &lt;action android:name=&quot;android.intent.action.SEND&quot; /&gt;
+            &lt;data android:mimeType=&quot;text/plain&quot; /&gt;
+        &lt;/intent&gt;
+        &lt;intent&gt;
+            &lt;action android:name=&quot;android.intent.action.DIAL&quot; /&gt;
+        &lt;/intent&gt;
+    &lt;/queries&gt;
+    &lt;application&gt;
+        ...
+    &lt;/application&gt;
+&lt;/manifest&gt;
+</code></pre>
+<aside class="warning"><p><strong>To ograniczenie nie dotyczy każdego wywołania <code>startActivity()</code> z intencją niejawną.</strong> System przewiduje kilka wyjątków, w których Twoja aplikacja nie musi (i nie powinna) deklarować <code>&lt;queries&gt;</code>. Opisuje je dokładnie kolejna sekcja — to jedna z częściej mylonych kwestii dotyczących intencji niejawnych.</p></aside>
+<h3 is-upgraded>Trzy scenariusze uruchamiania intencji niejawnej</h3>
+<p>W praktyce liczy się <strong>to, w jaki sposób</strong> uruchamiasz intencję, a nie sama akcja. Rozróżnij trzy przypadki:</p>
+<p><strong>Scenariusz 1: Uruchomienie przez <code>Intent.createChooser()</code></strong></p>
+<pre><code class="language-kotlin">val intent = Intent(Intent.ACTION_SEND).apply {
+    type = &quot;text/plain&quot;
+    putExtra(Intent.EXTRA_TEXT, &quot;Wynik gry: 15&quot;)
+}
+startActivity(Intent.createChooser(intent, &quot;Udostępnij przez&quot;))
+</code></pre>
+<p>To <strong>system</strong>, a nie Twoja aplikacja, przegląda zainstalowane pakiety i buduje okno wyboru. Twój kod nigdy bezpośrednio nie odpytuje <code>PackageManager</code>, więc <strong>nie potrzebujesz wpisu w <code>&lt;queries&gt;</code></strong> niezależnie od tego, jaką akcję wysyłasz. To jest najbezpieczniejszy i najprostszy sposób na uruchamianie intencji niejawnych, gdy dopuszczamy wybór spośród wielu aplikacji.</p>
+<p><strong>Scenariusz 2: Uruchomienie bezpośrednie, dla akcji z listy „common intents”</strong></p>
+<pre><code class="language-kotlin">val intent = Intent(Intent.ACTION_VIEW, Uri.parse(&quot;https://developer.android.com&quot;))
+startActivity(intent)
+</code></pre>
+<p>Android z góry uznaje kilka <strong>popularnych, standardowych</strong> akcji za zawsze widoczne, niezależnie od <code>&lt;queries&gt;</code> – m.in. <code>ACTION_VIEW</code> z URI <code>http</code>/<code>https</code>, <code>ACTION_SEND</code>, <code>ACTION_SENDTO</code> (telefon/SMS/e-mail), <code>ACTION_DIAL</code>. Pełna, aktualna lista znajduje się w dokumentacji <em>Package visibility filtering</em>. Dla tych konkretnych przypadków <strong>również nie musisz nic deklarować</strong>.</p>
+<p><strong>Scenariusz 3: Samodzielne sprawdzanie dostępności przed uruchomieniem</strong></p>
+<pre><code class="language-kotlin">val intent = Intent(Intent.ACTION_VIEW, Uri.parse(&quot;geo:52.4,16.9&quot;))
+
+if (intent.resolveActivity(packageManager) != null) {   // zapytanie o pakiety!
+    startActivity(intent)
+} else {
+    Toast.makeText(this, &quot;Brak aplikacji obsługującej mapy&quot;, Toast.LENGTH_SHORT).show()
+}
+</code></pre>
+<p><code>resolveActivity()</code> oraz <code>queryIntentActivities()</code> to <strong>bezpośrednie zapytania o inne pakiety</strong> i to one faktycznie podlegają restrykcjom z Androida 11+. Jeśli akcja nie jest jedną z „common intents” ze scenariusza 2 (np. niestandardowy schemat URI jak <code>geo:</code>), <strong>musisz</strong> zadeklarować ją w <code>&lt;queries&gt;</code>, inaczej <code>resolveActivity()</code> może zwrócić <code>null</code> mimo zainstalowanej aplikacji.</p>
+<h4 is-upgraded>Podsumowanie w tabeli</h4>
+<table><thead><tr><th>Sposób wywołania</th><th>Wymaga <code>&lt;queries&gt;</code>?</th><th>Dlaczego</th></tr></thead><tbody><tr><td><code>startActivity(Intent.createChooser(intent, tytuł))</code></td><td><strong>Nie</strong></td><td>Listę buduje system, a nie Twoja aplikacja</td></tr><tr><td><code>startActivity(intent)</code> dla akcji z listy <em>common intents</em> (np. <code>ACTION_VIEW</code> z <code>http/https</code>, <code>ACTION_SEND</code>, <code>ACTION_DIAL</code>)</td><td><strong>Nie</strong></td><td>Te konkretne akcje są z góry uznane za zawsze widoczne</td></tr><tr><td><code>startActivity(intent)</code> dla innej, mniej typowej akcji, bez wcześniejszego sprawdzania</td><td><strong>Zalecane</strong></td><td>Intencja zostanie wysłana „w ciemno&quot; – bez <code>&lt;queries&gt;</code> może się nie udać, mimo że aplikacja jest zainstalowana</td></tr><tr><td><code>intent.resolveActivity(packageManager)</code> / <code>queryIntentActivities()</code></td><td><strong>Tak</strong> (o ile akcja nie jest z listy <em>common intents</em>)</td><td>To bezpośrednie zapytanie o inne pakiety</td></tr></tbody></table>
+<aside class="special"><p><strong>Wniosek praktyczny:</strong> jeśli chcesz dać użytkownikowi wybór aplikacji (np. „Udostępnij&quot;), użyj <code>createChooser()</code> i <strong>nie</strong> wywołuj wcześniej <code>resolveActivity()</code> – wtedy <code>&lt;queries&gt;</code> w ogóle nie jest potrzebne. Jeśli natomiast chcesz uruchomić jedną, konkretną aplikację (np. zawsze mapy) i wcześniej sprawdzić jej dostępność, musisz zadeklarować odpowiedni wpis w <code>&lt;queries&gt;</code>.</p></aside>
+<h3 is-upgraded>Bezpieczne uruchamianie intencji niejawnych</h3>
+<p>Niezależnie od <code>&lt;queries&gt;</code>, zawsze warto zabezpieczyć się przed brakiem jakiejkolwiek pasującej aplikacji (np. na emulatorze bez usług Google) – np. łapiąc wyjątek:</p>
+<pre><code class="language-kotlin">try {
+    startActivity(intent)
+} catch (e: ActivityNotFoundException) {
+    Toast.makeText(this, &quot;Nie znaleziono aplikacji&quot;, Toast.LENGTH_SHORT).show()
+}
+</code></pre>
+<p>Jeśli chcesz zamiast wyjątku <em>z góry</em> sprawdzić dostępność (np. żeby ukryć przycisk, zanim użytkownik go kliknie), użyj <code>resolveActivity()</code> – pamiętając, że to scenariusz 3 z tabeli powyżej i może wymagać wpisu w <code>&lt;queries&gt;</code>.</p>
+<h3 is-upgraded>Rozszerzona lista często wykorzystywanych intencji niejawnych</h3>
+<table><thead><tr><th>Cel</th><th>Akcja / konstruktor</th><th>Przykładowy kod</th><th>Scenariusz z tabeli / uwagi</th></tr></thead><tbody><tr><td>Otwórz stronę WWW</td><td><code>Intent.ACTION_VIEW</code></td><td><code>Intent(Intent.ACTION_VIEW, Uri.parse(&quot;https://developer.android.com&quot;))</code></td><td><em>Common intent</em> – bez <code>&lt;queries&gt;</code></td></tr><tr><td>Otwórz lokalizację na mapie</td><td><code>Intent.ACTION_VIEW</code> + URI <code>geo:</code></td><td><code>Intent(Intent.ACTION_VIEW, Uri.parse(&quot;geo:52.4,16.9?q=Politechnika+Poznanska&quot;))</code></td><td>Nie jest <em>common intent</em> – jeśli sprawdzasz <code>resolveActivity()</code>, dodaj wpis w <code>&lt;queries&gt;</code></td></tr><tr><td>Wybierz trasę/nawigację</td><td><code>Intent.ACTION_VIEW</code> + URI <code>google.navigation:</code></td><td><code>Intent(Intent.ACTION_VIEW, Uri.parse(&quot;google.navigation:q=52.4,16.9&quot;))</code></td><td>Specyficzne dla Google Maps, jak wyżej</td></tr><tr><td>Zadzwoń (otwórz wybieranie numeru)</td><td><code>Intent.ACTION_DIAL</code></td><td><code>Intent(Intent.ACTION_DIAL, Uri.parse(&quot;tel:123456789&quot;))</code></td><td><em>Common intent</em>. Nie wymaga uprawnień – użytkownik sam naciska „Zadzwoń”</td></tr><tr><td>Zadzwoń natychmiast</td><td><code>Intent.ACTION_CALL</code></td><td><code>Intent(Intent.ACTION_CALL, Uri.parse(&quot;tel:123456789&quot;))</code></td><td>Wymaga uprawnienia <code>CALL_PHONE</code> (uprawnienie niebezpieczne)</td></tr><tr><td>Wyślij SMS</td><td><code>Intent.ACTION_SENDTO</code> + URI <code>smsto:</code></td><td><code>Intent(Intent.ACTION_SENDTO, Uri.parse(&quot;smsto:123456789&quot;)).apply { putExtra(&quot;sms_body&quot;, &quot;Cześć!&quot;) }</code></td><td><em>Common intent</em></td></tr><tr><td>Wyślij e-mail</td><td><code>Intent.ACTION_SENDTO</code> + URI <code>mailto:</code></td><td><code>Intent(Intent.ACTION_SENDTO, Uri.parse(&quot;mailto:&quot;)).apply { putExtra(Intent.EXTRA_EMAIL, arrayOf(&quot;a@b.com&quot;)); putExtra(Intent.EXTRA_SUBJECT, &quot;Temat&quot;) }</code></td><td><em>Common intent</em>. Otwiera tylko klienty poczty (w przeciwieństwie do <code>ACTION_SEND</code>)</td></tr><tr><td>Udostępnij tekst</td><td><code>Intent.ACTION_SEND</code></td><td><code>Intent(Intent.ACTION_SEND).apply { type = &quot;text/plain&quot;; putExtra(Intent.EXTRA_TEXT, &quot;Wynik gry: 15&quot;) }</code></td><td><em>Common intent</em>, ale i tak użyj <code>Intent.createChooser()</code></td></tr><tr><td>Udostępnij obraz</td><td><code>Intent.ACTION_SEND</code> + <code>type = &quot;image/*&quot;</code></td><td><code>Intent(Intent.ACTION_SEND).apply { type = &quot;image/*&quot;; putExtra(Intent.EXTRA_STREAM, imageUri) }</code></td><td><code>imageUri</code> najczęściej z <code>FileProvider</code>; użyj <code>createChooser()</code></td></tr><tr><td>Wybierz zdjęcie z galerii</td><td><code>Intent.ACTION_PICK</code> lub <code>Intent.ACTION_GET_CONTENT</code></td><td><code>Intent(Intent.ACTION_GET_CONTENT).apply { type = &quot;image/*&quot; }</code></td><td>Wynik odbieramy przez <code>registerForActivityResult</code>; nowoczesna alternatywa to <code>ActivityResultContracts.PickVisualMedia</code>, który nie wymaga <code>&lt;queries&gt;</code></td></tr><tr><td>Zrób zdjęcie aparatem</td><td><code>MediaStore.ACTION_IMAGE_CAPTURE</code></td><td><code>Intent(MediaStore.ACTION_IMAGE_CAPTURE)</code></td><td>Nie jest <em>common intent</em> – przy ręcznym <code>resolveActivity()</code> dodaj wpis w <code>&lt;queries&gt;</code></td></tr><tr><td>Dodaj wydarzenie do kalendarza</td><td><code>Intent.ACTION_INSERT</code> + <code>CalendarContract.Events.CONTENT_URI</code></td><td><code>Intent(Intent.ACTION_INSERT, CalendarContract.Events.CONTENT_URI).apply { putExtra(CalendarContract.Events.TITLE, &quot;Laborki&quot;) }</code></td><td>Jak wyżej</td></tr><tr><td>Ustaw alarm/budzik</td><td><code>AlarmClock.ACTION_SET_ALARM</code></td><td><code>Intent(AlarmClock.ACTION_SET_ALARM).apply { putExtra(AlarmClock.EXTRA_HOUR, 7); putExtra(AlarmClock.EXTRA_MINUTES, 30) }</code></td><td>Wymaga uprawnienia <code>SET_ALARM</code> (zwykłe, deklarowane w manifeście)</td></tr><tr><td>Wyszukaj w sieci</td><td><code>Intent.ACTION_WEB_SEARCH</code></td><td><code>Intent(Intent.ACTION_WEB_SEARCH).apply { putExtra(SearchManager.QUERY, &quot;android intents&quot;) }</code></td><td>Otwiera domyślną wyszukiwarkę</td></tr><tr><td>Otwórz ustawienia aplikacji</td><td><code>Settings.ACTION_APPLICATION_DETAILS_SETTINGS</code></td><td><code>Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts(&quot;package&quot;, packageName, null))</code></td><td>Dotyczy Twojej własnej aplikacji – zawsze dostępne</td></tr><tr><td>Otwórz ustawienia systemowe (Wi-Fi, Bluetooth)</td><td><code>Settings.ACTION_WIFI_SETTINGS</code>, <code>Settings.ACTION_BLUETOOTH_SETTINGS</code></td><td><code>Intent(Settings.ACTION_WIFI_SETTINGS)</code></td><td>Komponent systemowy, zawsze dostępny</td></tr><tr><td>Zainstaluj/otwórz aplikację w sklepie</td><td><code>Intent.ACTION_VIEW</code> + URI <code>market:</code></td><td><code>Intent(Intent.ACTION_VIEW, Uri.parse(&quot;market://details?id=com.mr.diceroller&quot;))</code></td><td>Jak przy mapach – przy ręcznym <code>resolveActivity()</code> dodaj wpis w <code>&lt;queries&gt;</code></td></tr></tbody></table>
+<aside class="warning"><p>Część z powyższych akcji (np. <code>ACTION_CALL</code>, aparat, dostęp do kalendarza) wymaga dodatkowo <strong>uprawnień niebezpiecznych (dangerous permissions)</strong>, o które trzeba poprosić użytkownika w czasie działania aplikacji (<em>runtime permissions</em>) – to temat kolejnych laboratoriów. Samo użycie intencji niejawnej (np. <code>ACTION_DIAL</code> zamiast <code>ACTION_CALL</code>) bywa prostszym rozwiązaniem, bo deleguje odpowiedzialność (i potrzebne uprawnienie) do aplikacji systemowej.</p></aside>
+<h3 is-upgraded>Przekazywanie danych (Extras)</h3>
+<p>Do intencji można dołączyć dane w formie par <strong>klucz–wartość</strong> (<code>putExtra</code>). Wewnętrznie są przechowywane w obiekcie <code>Bundle</code>. Dotyczy to zarówno intencji jawnych, jak i niejawnych (np. <code>Intent.EXTRA_TEXT</code> powyżej).</p>
+<pre><code class="language-kotlin">// nadawca
+intent.putExtra(&quot;num_dice&quot;, 3)
+
+// odbiorca (w SettingsActivity `intent` to intencja, która uruchomiła aktywność)
+val n = intent.getIntExtra(&quot;num_dice&quot;, 2) // 2 = wartość domyślna, jeśli klucza brak
+</code></pre>
+<ul><li>Obsługiwane są typy proste, <code>String</code>, tablice oraz obiekty <code>Serializable</code> / <code>Parcelable</code>.</li><li>Metody <code>getXxxExtra</code> zwracają <strong>wartość domyślną</strong>, gdy klucza brak. Literówka w kluczu nie daje błędu, tylko po cichu zwraca domyślną wartość. Dlatego klucze trzymamy w jednym miejscu (u nas w <code>strings.xml</code>, <code>R.string.num_dice_key</code>) albo w stałych (<code>const val</code>).</li><li>Android definiuje też gotowe stałe kluczy dla popularnych przypadków, np. <code>Intent.EXTRA_TEXT</code>, <code>Intent.EXTRA_SUBJECT</code>, <code>Intent.EXTRA_EMAIL</code>, <code>Intent.EXTRA_STREAM</code> – warto używać ich zamiast własnych nazw, gdy komunikujemy się z inną aplikacją (ona oczekuje właśnie tych kluczy).</li><li>Extras służą do <strong>małych porcji danych</strong>. Duże obiekty (np. bitmapy) mogą przekroczyć limit transakcji i zakończyć aplikację błędem.</li></ul>
+<h3 is-upgraded>Uruchamianie aktywności z wynikiem (Activity Result API)</h3>
+<p>Ekran ustawień ma <strong>zwrócić wynik</strong> do ekranu, który go wywołał:</p>
+<pre><code>MainActivityExtended                         SettingsActivity
+        │  launch(intent + extras)                   │
+        │ ─────────────────────────────────────────&gt; │ odczyt: intent.getXxxExtra
+        │                                            │ użytkownik zmienia ustawienia
+        │                                            │ setResult(RESULT_OK, wynik)
+        │  callback(result)                          │ finish()
+        │ &lt;───────────────────────────────────────── │
+</code></pre>
+<ol><li>W aktywności wywołującej <strong>rejestrujemy</strong> kontrakt: <code>registerForActivityResult(StartActivityForResult()) { result -&gt; ... }</code>. Wynikiem jest obiekt launchera.</li><li>Rejestracja musi nastąpić <strong>przed</strong> osiągnięciem stanu <code>STARTED</code>. Dlatego robimy ją najczęściej w <code>onCreate</code>, a nie w kliknięciu przycisku.</li><li><code>launcher.launch(intent)</code> otwiera ekran.</li><li>Aktywność docelowa wywołuje <code>setResult(RESULT_OK, daneWynikowe)</code> i <code>finish()</code>.</li><li>Wywoływany jest callback z obiektem <code>ActivityResult</code> (<code>resultCode</code>, <code>data</code>).</li></ol>
+<p>Mechanizm ten działa też z intencjami <strong>niejawnymi</strong> uruchamianymi przez zewnętrzne aplikacje – np. gotowy kontrakt <code>ActivityResultContracts.GetContent()</code> lub <code>ActivityResultContracts.TakePicture()</code> opakowuje intencje <code>ACTION_GET_CONTENT</code> / <code>MediaStore.ACTION_IMAGE_CAPTURE</code> z tabeli powyżej i zwraca wynik (np. wybrany <code>Uri</code>) bez ręcznego budowania intencji i bez potrzeby deklarowania <code>&lt;queries&gt;</code>.</p>
+<aside class="warning"><p>Starsza metoda <code>startActivityForResult()</code> i <code>onActivityResult()</code> jest <strong>oznaczona jako przestarzała (deprecated)</strong>. W starszych poradnikach i na StackOverflow nadal ją znajdziesz, ale nie używaj jej w nowym kodzie.</p></aside>
+<h3 is-upgraded>Typowe pułapki</h3>
+<ul><li>Brak <code>setResult</code> przed <code>finish()</code>, więc kod wyniku to <code>RESULT_CANCELED</code>, a <code>data == null</code>. Tak będzie np. po naciśnięciu <em>Wstecz</em>, dlatego callback sprawdza <code>RESULT_OK</code> i <code>result.data?.let</code>.</li><li>Różne klucze w nadawcy i odbiorcy.</li><li>Niezgodność typów (<code>putExtra(&quot;k&quot;, 3)</code>, a odczyt przez <code>getBooleanExtra</code>).</li><li>Intencja niejawna bez odbiorcy powoduje <code>ActivityNotFoundException</code> – zawsze obsłuż ten przypadek (<code>try/catch</code> lub sprawdzenie przed wywołaniem), zwłaszcza na emulatorach bez usług Google.</li><li>Mylenie trzech scenariuszy uruchamiania intencji niejawnej: użycie <code>resolveActivity()</code> „na wszelki wypadek&quot; przed każdym <code>startActivity()</code>, nawet gdy później i tak wywołujemy <code>createChooser()</code> – to niepotrzebnie wymusza dodawanie wpisów do <code>&lt;queries&gt;</code>, chociaż chooser by ich nie wymagał.</li><li>Założenie, że <code>&lt;queries&gt;</code> jest potrzebne zawsze przy intencjach niejawnych – w rzeczywistości dotyczy tylko bezpośrednich zapytań o pakiety (<code>resolveActivity()</code>, <code>queryIntentActivities()</code>) dla akcji spoza listy <em>common intents</em>.</li></ul>
+      </section>
+    
+      <section class="codelab-step" data-label="Zasoby (Resources)" data-duration="07">
+        <h3 is-upgraded>Czym jest</h3>
+<p>Zasoby to wszystko, co nie jest kodem, czyli teksty, kolory, obrazy, układy, menu i style. Znajdują się w katalogu <code>app/src/main/res</code>. Rozdzielenie kodu od zasobów pozwala zmieniać wygląd i teksty bez ingerencji w logikę. Pozwala też automatycznie dobierać odpowiednie zasoby do urządzenia (język, orientacja, gęstość ekranu, tryb ciemny).</p>
+<h3 is-upgraded>Klasa <code>R</code></h3>
+<p>Podczas budowania Android Studio generuje klasę <code>R</code>, w której każdy zasób dostaje <strong>liczbowy identyfikator</strong>. Dzięki temu referencje są sprawdzane już <strong>w czasie kompilacji</strong>.</p>
+<table><thead><tr><th>Typ zasobu</th><th>Katalog</th><th>Dostęp w XML</th><th>Dostęp w Kotlinie</th></tr></thead><tbody><tr><td>Tekst</td><td><code>values/strings.xml</code></td><td><code>@string/roll</code></td><td><code>getString(R.string.roll)</code></td></tr><tr><td>Kolor</td><td><code>values/colors.xml</code></td><td><code>@color/myBlue</code></td><td><code>getColor(R.color.myBlue)</code></td></tr><tr><td>Obraz</td><td><code>drawable/</code></td><td><code>@drawable/dice_1</code></td><td><code>R.drawable.dice_1</code></td></tr><tr><td>Układ</td><td><code>layout/</code></td><td></td><td><code>R.layout.activity_main</code></td></tr><tr><td>Menu</td><td><code>menu/</code></td><td></td><td><code>R.menu.menu</code></td></tr><tr><td>Tablica tekstów</td><td><code>values/strings.xml</code></td><td><code>@array/num_dice_spinner_entries</code></td><td><code>resources.getStringArray(...)</code></td></tr><tr><td>Identyfikator widoku</td><td></td><td><code>@+id/rollButton</code> (<code>+</code> = utwórz)</td><td><code>R.id.rollButton</code></td></tr><tr><td>Wymiar</td><td><code>values/dimens.xml</code></td><td><code>@dimen/margin_default</code></td><td><code>resources.getDimension(R.dimen.margin_default)</code></td></tr><tr><td>Styl</td><td><code>values/styles.xml</code></td><td><code>@style/AppTheme</code></td><td><code>R.style.AppTheme</code></td></tr><tr><td>Animacja</td><td><code>anim/</code></td><td><code>@anim/slide_in</code></td><td><code>R.anim.slide_in</code></td></tr></tbody></table>
+<aside class="special"><p><code>R.drawable.dice_1</code> <strong>nie jest</strong> obiektem obrazka, tylko liczbą typu <code>Int</code>. Dlatego funkcja <code>resolveDrawable()</code> zwraca <code>Int</code>, a <code>setImageResource()</code> przyjmuje <code>Int</code>.</p></aside>
+<h3 is-upgraded>Kwalifikatory zasobów</h3>
+<p>System Android automatycznie wybiera odpowiednią wersję zasobu na podstawie <strong>kwalifikatorów</strong> dodanych do nazwy katalogu. Kwalifikatory opisują konfigurację urządzenia, np. język, rozmiar ekranu, orientację, gęstość pikseli, wersję API, tryb nocny itp. System wybiera zasób z katalogu, którego kwalifikatory najlepiej pasują do aktualnej konfiguracji.</p>
+<p>Kwalifikatory dodaje się do nazwy katalogu w formacie:</p>
+<pre><code>&lt;katalog_zasobów&gt;-&lt;kwalifikator1&gt;-&lt;kwalifikator2&gt;/...
+</code></pre>
+<p>Przykład:</p>
+<pre><code>res/
+├── values/strings.xml
+├── values-pl/strings.xml
+├── values-night/colors.xml
+├── layout/activity_main.xml
+├── layout-land/activity_main.xml
+└── drawable-xxhdpi/
+</code></pre>
+<aside class="warning"><p><strong>Kolejność kwalifikatorów ma znaczenie.</strong> System wybiera zasoby według <strong>ściśle określonej kolejności</strong> (patrz tabela poniżej). Jeśli masz np. <code>drawable-en-sw600dp</code> i <code>drawable-sw600dp-en</code>, system wybierze pierwszy, bo język (<code>en</code>) ma wyższy priorytet niż rozmiar ekranu (<code>sw600dp</code>).</p></aside>
+<h4 is-upgraded>Najczęściej spotykane kwalifikatory</h4>
+<table><thead><tr><th>Kategoria</th><th>Kwalifikator</th><th>Przykład</th><th>Opis</th><th>Priorytet</th></tr></thead><tbody><tr><td><strong>Język</strong></td><td>dwuliterowy kod języka (ISO 639-1)</td><td><code>values-pl/</code></td><td>Język polski</td><td>Bardzo wysoki</td></tr><tr><td><strong>Region</strong></td><td>dwuliterowy kod regionu (ISO 3166-1-alpha-2) z prefiksem <code>r</code></td><td><code>values-en-rUS/</code></td><td>Angielski (USA)</td><td>Wysoki</td></tr><tr><td><strong>Gęstość ekranu</strong></td><td><code>ldpi</code>, <code>mdpi</code>, <code>hdpi</code>, <code>xhdpi</code>, <code>xxhdpi</code>, <code>xxxhdpi</code>, <code>nodpi</code>, <code>anydpi</code>, <code>tvdpi</code></td><td><code>drawable-xxhdpi/</code></td><td>Ekrany o bardzo wysokiej gęstości (480 dpi)</td><td>Średni</td></tr><tr><td><strong>Rozmiar ekranu</strong></td><td><code>small</code>, <code>normal</code>, <code>large</code>, <code>xlarge</code></td><td><code>layout-large/</code></td><td>Duże ekrany (tablety)</td><td>Niski</td></tr><tr><td><strong>Najmniejsza szerokość</strong></td><td><code>sw&lt;N&gt;dp</code></td><td><code>layout-sw600dp/</code></td><td>Ekrany o najmniejszej szerokości ≥ 600 dp (typowo tablety 7&quot;)</td><td>Średni</td></tr><tr><td><strong>Dostępna szerokość</strong></td><td><code>w&lt;N&gt;dp</code></td><td><code>layout-w720dp/</code></td><td>Ekrany o dostępnej szerokości ≥ 720 dp</td><td>Średni</td></tr><tr><td><strong>Dostępna wysokość</strong></td><td><code>h&lt;N&gt;dp</code></td><td><code>layout-h1280dp/</code></td><td>Ekrany o dostępnej wysokości ≥ 1280 dp</td><td>Średni</td></tr><tr><td><strong>Orientacja</strong></td><td><code>port</code>, <code>land</code></td><td><code>layout-land/</code></td><td>Orientacja pozioma</td><td>Średni</td></tr><tr><td><strong>Tryb nocny</strong></td><td><code>night</code>, <code>notnight</code></td><td><code>values-night/</code></td><td>Tryb ciemny</td><td>Wysoki</td></tr><tr><td><strong>Wersja API</strong></td><td><code>v&lt;N&gt;</code></td><td><code>values-v21/</code></td><td>Urządzenia z API ≥ 21 (Lollipop)</td><td>Bardzo wysoki</td></tr><tr><td><strong>Układ klawiatury</strong></td><td><code>keysexposed</code>, <code>keyshidden</code>, <code>keyssoft</code></td><td><code>layout-keyshidden/</code></td><td>Klawiatura fizyczna schowana</td><td>Niski</td></tr><tr><td><strong>Typ ekranu dotykowego</strong></td><td><code>notouch</code>, <code>finger</code></td><td><code>layout-notouch/</code></td><td>Urządzenia bez ekranu dotykowego</td><td>Niski</td></tr><tr><td><strong>Dostępność klawiatury</strong></td><td><code>nokeys</code>, <code>qwerty</code>, <code>12key</code></td><td><code>layout-qwerty/</code></td><td>Klawiatura QWERTY</td><td>Niski</td></tr><tr><td><strong>Dostępność panelu nawigacyjnego</strong></td><td><code>nonav</code>, <code>dpad</code>, <code>trackball</code>, <code>wheel</code></td><td><code>layout-dpad/</code></td><td>Nawigacja przez D-pad</td><td>Niski</td></tr><tr><td><strong>Tryb UI</strong></td><td><code>car</code>, <code>desk</code>, <code>television</code>, <code>appliance</code>, <code>watch</code></td><td><code>values-car/</code></td><td>Tryb samochodowy (Android Auto)</td><td>Średni</td></tr><tr><td><strong>Wersja layoutu</strong></td><td><code>long</code>, <code>notlong</code></td><td><code>layout-long/</code></td><td>Ekrany o proporcjach 16:9 i węższe</td><td>Niski</td></tr><tr><td><strong>Wersja zasobu</strong></td><td><code>round</code>, <code>notround</code></td><td><code>layout-round/</code></td><td>Ekrany okrągłe (Wear OS)</td><td>Średni</td></tr></tbody></table>
+<aside class="special"><p><strong>Priorytet</strong> określa, które kwalifikatory są ważniejsze przy wyborze zasobu. Na przykład język (<code>values-pl/</code>) ma wyższy priorytet niż gęstość ekranu (<code>drawable-xxhdpi/</code>), więc system najpierw wybierze zasób w odpowiednim języku, a dopiero potem dostosuje go do gęstości ekranu. Pełną, aktualną listę priorytetów znajdziesz w dokumentacji <em>Providing Resources</em>.</p></aside>
+<h4 is-upgraded>Przykłady użycia kwalifikatorów</h4>
+<ol><li><strong>Język i region</strong></li></ol>
+<pre><code>   res/
+   ├── values/strings.xml          (domyślne, angielski)
+   ├── values-pl/strings.xml       (polski)
+   └── values-en-rUS/strings.xml   (angielski, USA)
+</code></pre>
+<p>Na urządzeniu z polskim ustawionym jako język systemowy system wybierze <code>values-pl/strings.xml</code>. Na urządzeniu z angielskim (USA) – <code>values-en-rUS/strings.xml</code>. Na wszystkich innych – <code>values/strings.xml</code>.</p>
+<ol start="2"><li><strong>Gęstość ekranu</strong></li></ol>
+<pre><code>   res/
+   ├── drawable-mdpi/dice.png      (32×32 px)
+   ├── drawable-hdpi/dice.png      (48×48 px)
+   ├── drawable-xhdpi/dice.png     (64×64 px)
+   └── drawable-xxhdpi/dice.png    (96×96 px)
+</code></pre>
+<p>System automatycznie wybierze obrazek o odpowiedniej wielkości dla gęstości ekranu urządzenia. Dzięki temu obrazki wyglądają ostro na każdym urządzeniu, a fizyczny rozmiar (w <code>dp</code>) pozostaje taki sam.</p>
+<ol start="3"><li><strong>Rozmiar ekranu i orientacja</strong></li></ol>
+<pre><code>   res/
+   ├── layout/activity_main.xml
+   ├── layout-sw600dp/activity_main.xml   (tablety 7&quot;)
+   └── layout-land/activity_main.xml      (orientacja pozioma)
+</code></pre>
+<p>Na telefonie w orientacji pionowej system użyje <code>layout/activity_main.xml</code>. Na tablecie 7&quot; (najmniejsza szerokość ≥ 600 dp) – <code>layout-sw600dp/activity_main.xml</code>. Na telefonie w orientacji poziomej – <code>layout-land/activity_main.xml</code>.</p>
+<ol start="4"><li><strong>Tryb nocny</strong></li></ol>
+<pre><code>   res/
+   ├── values/colors.xml
+   └── values-night/colors.xml
+</code></pre>
+<p>W trybie jasnym system użyje <code>values/colors.xml</code>, a w trybie ciemnym – <code>values-night/colors.xml</code>. To najprostszy sposób na dostosowanie kolorów do trybu nocnego.</p>
+<ol><li><strong>Wersja API</strong></li></ol>
+<pre><code>   res/
+   ├── values/styles.xml
+   └── values-v21/styles.xml
+</code></pre>
+<p>Na urządzeniach z API ≥ 21 system użyje <code>values-v21/styles.xml</code> (np. z motywem Material Design), a na starszych – <code>values/styles.xml</code>.</p>
+<h3 is-upgraded>Jak system wybiera zasoby</h3>
+<p>Gdy aplikacja żąda zasobu (np. <code>R.string.app_name</code>), system:</p>
+<ol><li>Tworzy listę <strong>wszystkich katalogów zasobów</strong>, które zawierają ten zasób,</li><li>Usuwa katalogi, których kwalifikatory <strong>nie pasują</strong> do aktualnej konfiguracji urządzenia,</li><li>Z pozostałych wybiera katalog o <strong>najwyższym priorytecie</strong> (patrz tabela powyżej),</li><li>Jeśli jest kilka katalogów o tym samym priorytecie (np. <code>values-pl/</code> i <code>values-en/</code>), wybiera ten, który najlepiej pasuje do ustawień urządzenia (np. język polski zamiast angielskiego),</li><li>Jeśli nie znajdzie pasującego zasobu, używa <strong>domyślnego</strong> (z katalogu bez kwalifikatorów, np. <code>values/</code>).</li></ol>
+<aside class="warning"><p><strong>Brak zasobu domyślnego</strong> (np. tylko <code>values-pl/strings.xml</code> bez <code>values/strings.xml</code>) spowoduje błąd kompilacji. Zawsze miej przynajmniej jeden katalog bez kwalifikatorów jako fallback.</p></aside>
+<h3 is-upgraded>Teksty z parametrami</h3>
+<p>Zamiast sklejać napisy w kodzie, definiujemy szablon w <code>strings.xml</code>:</p>
+<pre><code class="language-xml">&lt;string name=&quot;player_label_format&quot;&gt;Player %1$d&lt;/string&gt;
+</code></pre>
+<pre><code class="language-kotlin">getString(R.string.player_label_format, currentPlayer)
+</code></pre>
+<p><code>%1$d</code> oznacza „pierwszy argument, liczba całkowita&quot;. Takie szablony ułatwiają tłumaczenie, bo kolejność słów może być w różnych językach inna.</p>
+<h3 is-upgraded>Kwalifikatory zasobów</h3>
+<p>Do nazwy katalogu można dodać kwalifikator. System wybierze wtedy odpowiedni zasób sam:</p>
+<pre><code>res/
+├── values/strings.xml         &lt;- domyślne (angielski)
+├── values-pl/strings.xml      &lt;- język polski
+├── values-night/colors.xml    &lt;- tryb ciemny
+├── layout/activity_main.xml
+├── layout-land/activity_main.xml   &lt;- orientacja pozioma
+└── drawable-xxhdpi/           &lt;- ekrany o wysokiej gęstości
+</code></pre>
+<h3 is-upgraded>Jednostki</h3>
+<ul><li><code>dp</code> (density-independent pixels) – rozmiary elementów i marginesy. Ten sam fizyczny rozmiar na ekranach o różnej gęstości.</li><li><code>sp</code> (scale-independent pixels) – rozmiar czcionki. Uwzględnia ustawienia użytkownika dotyczące wielkości tekstu.</li><li>Nie używaj <code>px</code>.</li></ul>
+<h3 is-upgraded>Gdzie spotkaliśmy to w ćwiczeniu</h3>
+<ul><li><strong>Extract string resource</strong> i <strong>Create color value resource</strong> (<code>Alt+Enter</code>).</li><li>Obrazy kości w <code>drawable</code>.</li><li><code>string-array</code> dla <code>Spinnera</code>, klucze <code>num_dice_key</code> i <code>hold_enable_key</code>, menu.</li></ul>
+<h3 is-upgraded>Typowe pułapki</h3>
+<ul><li>Teksty „na sztywno&quot; w kodzie lub XML (ostrzeżenie <em>hardcoded text</em>).</li><li>Zmiana nazwy zasobu poza refaktoryzacją IDE (<code>Shift+F6</code>), po której kod się nie kompiluje.</li><li>Użycie <code>getColor()</code> z <code>Context</code> na bardzo starych API. Uniwersalnie: <code>ContextCompat.getColor(context, id)</code>.</li></ul>
+      </section>
+    
+      <section class="codelab-step" data-label="Nasłuchiwacze (Listeners)" data-duration="06">
+        <h3 is-upgraded>Czym jest</h3>
+<p>Nasłuchiwacz to obiekt (lub funkcja), który system <strong>wywoła, gdy wystąpi zdarzenie</strong>, np. kliknięcie lub zmiana stanu przełącznika. Interfejs aplikacji jest sterowany zdarzeniami (<em>event-driven</em>): nie czekamy na kliknięcie w pętli, tylko rejestrujemy kod, który zostanie uruchomiony w odpowiednim momencie (wzorzec <em>obserwator</em> / <em>callback</em>).</p>
+<h3 is-upgraded>Jak działa</h3>
+<pre><code class="language-kotlin">button.setOnClickListener {      // rejestracja
+    rollDice()                   // wywoływane przy każdym kliknięciu
+}
+</code></pre>
+<p>W Javie <code>OnClickListener</code> to interfejs z jedną metodą (<code>onClick(View v)</code>). Kotlin pozwala zastąpić go <strong>wyrażeniem lambda</strong>, a argument <code>View</code> jest dostępny jako <code>it</code>. Odpowiada to zapisowi:</p>
+<pre><code class="language-kotlin">button.setOnClickListener(object : View.OnClickListener {
+    override fun onClick(v: View) { rollDice() }
+})
+</code></pre>
+<h3 is-upgraded>Najczęstsze nasłuchiwacze</h3>
+<table><thead><tr><th>Zdarzenie</th><th>Metoda</th></tr></thead><tbody><tr><td>Kliknięcie</td><td><code>setOnClickListener</code></td></tr><tr><td>Długie przytrzymanie</td><td><code>setOnLongClickListener</code></td></tr><tr><td>Zmiana stanu <code>Switch</code></td><td><code>setOnCheckedChangeListener</code></td></tr><tr><td>Wybór elementu <code>Spinnera</code></td><td><code>onItemSelectedListener</code></td></tr><tr><td>Zmiana tekstu</td><td><code>addTextChangedListener</code></td></tr></tbody></table>
+<h3 is-upgraded>Zasady</h3>
+<ul><li>Widok ma <strong>jeden</strong> nasłuchiwacz danego typu. Kolejne wywołanie <code>setOnClickListener</code> zastępuje poprzedni.</li><li>Callbacki wykonują się na <strong>wątku głównym (UI)</strong>. Długie operacje blokują interfejs (ANR, <em>Application Not Responding</em>).</li><li>Lambda przechwytuje zmienne z otoczenia (np. <code>diceIdx</code> w pętli w <code>setDiceClick()</code>). Dzięki temu każda kostka ma własną kopię indeksu.</li><li>Atrybut <code>android:onClick=&quot;metoda&quot;</code> w XML też działa, ale ukrywa logikę w układzie i nie jest zalecany.</li></ul>
+<h3 is-upgraded>Callback jako nasłuchiwacz wyniku</h3>
+<p>Lambda przekazana do <code>registerForActivityResult { result -&gt; ... }</code> jest nasłuchiwaczem tego samego typu. Reaguje na zdarzenie „użytkownik wrócił z ekranu ustawień&quot;.</p>
+<h3 is-upgraded>Gdzie spotkaliśmy to w ćwiczeniu</h3>
+<ul><li><code>rollButton.setOnClickListener { ... }</code> (<code>MainActivity</code>, <code>MainActivityExtended</code>).</li><li>Kliknięcie kostki w <code>setDiceClick()</code> (przełączanie „hold&quot;).</li><li><code>confirmButton.setOnClickListener</code> w <code>SettingsActivity</code>.</li></ul>
+<h3 is-upgraded>Typowe pułapki</h3>
+<ul><li>Rejestracja nasłuchiwacza przed inicjalizacją widoków.</li><li>Logika zależna od stanu widoku, który nie jest synchronizowany (np. porównywanie tekstu przycisku zamiast przechowywania stanu gry w osobnej zmiennej, jak w naszej wersji <code>rollButton</code>).</li></ul>
+      </section>
+    
+      <section class="codelab-step" data-label="Elementy interfejsu użytkownika (UI)" data-duration="07">
+        <h3 is-upgraded>Hierarchia widoków</h3>
+<p>Każdy element na ekranie to <code>View</code>. Kontenery zawierające inne widoki to <code>ViewGroup</code> (np. <code>ConstraintLayout</code>). Układ XML opisuje <strong>drzewo widoków</strong>:</p>
+<pre><code>ConstraintLayout (ViewGroup)
+├── ImageView  dice1Img
+├── ImageView  dice2Img
+├── TextView   rollResultText
+└── Button     rollButton
+</code></pre>
+<p>Przy <code>setContentView</code> (lub <code>binding.inflate</code>) system <strong>„nadmuchuje&quot; (inflate)</strong> XML, czyli tworzy obiekty widoków w pamięci.</p>
+<h3 is-upgraded>Wymiary i <code>ConstraintLayout</code></h3>
+<ul><li>Każdy widok musi mieć <code>layout_width</code> i <code>layout_height</code>:</li><li><code>wrap_content</code> – tyle, ile potrzebuje zawartość,</li><li><code>match_parent</code> – tyle, ile rodzic,</li><li><code>0dp</code> w <code>ConstraintLayout</code> (<em>match constraint</em>) – wypełnij przestrzeń między ograniczeniami.</li><li>Pozycję w <code>ConstraintLayout</code> określają <strong>ograniczenia (constraints)</strong>, np. <code>layout_constraintTop_toBottomOf</code>. Aby widok miał jednoznaczne położenie, potrzebuje ograniczenia w poziomie <strong>i</strong> w pionie.</li></ul>
+<h3 is-upgraded>Widżety użyte w ćwiczeniu</h3>
+<table><thead><tr><th>Widżet</th><th>Zastosowanie</th><th>Najważniejsze atrybuty / metody</th></tr></thead><tbody><tr><td><code>TextView</code></td><td>Wyświetlanie tekstu</td><td><code>text</code>, <code>textSize</code>, <code>setTextColor()</code></td></tr><tr><td><code>Button</code></td><td>Przycisk</td><td><code>text</code>, <code>isEnabled</code>, <code>backgroundTint</code></td></tr><tr><td><code>ImageView</code></td><td>Obrazek</td><td><code>srcCompat</code>, <code>setImageResource()</code>, <code>imageTintList</code>, <code>tintMode</code></td></tr><tr><td><code>Switch</code></td><td>Przełącznik on/off</td><td><code>isChecked</code></td></tr><tr><td><code>Spinner</code></td><td>Lista rozwijana</td><td><code>entries</code>, <code>selectedItem</code>, <code>setSelection()</code></td></tr><tr><td><code>Snackbar</code></td><td>Krótki komunikat u dołu ekranu (z opcjonalną akcją)</td><td><code>Snackbar.make(...).setAction(...).show()</code></td></tr><tr><td>Menu opcji</td><td>Akcje w pasku aplikacji</td><td><code>onCreateOptionsMenu</code>, <code>onOptionsItemSelected</code></td></tr></tbody></table>
+<h3 is-upgraded>Widoczność (<code>visibility</code>)</h3>
+<table><thead><tr><th>Wartość</th><th>Widoczny</th><th>Zajmuje miejsce</th></tr></thead><tbody><tr><td><code>VISIBLE</code></td><td>tak</td><td>tak</td></tr><tr><td><code>INVISIBLE</code></td><td>nie</td><td><strong>tak</strong></td></tr><tr><td><code>GONE</code></td><td>nie</td><td><strong>nie</strong></td></tr></tbody></table>
+<p>W grze używamy <code>GONE</code> do ukrywania nieużywanych kostek (<code>applySettings</code>), a <code>INVISIBLE</code> do etykiety gracza, żeby układ się nie przesuwał.</p>
+<h3 is-upgraded>Typowe pułapki</h3>
+<ul><li>Widok bez ograniczeń w <code>ConstraintLayout</code> ląduje w lewym górnym rogu.</li><li><code>dp</code> zamiast <code>sp</code> dla tekstu i odwrotnie.</li><li><code>Switch</code> jest starszym widżetem. W nowszych projektach zaleca się <code>SwitchMaterial</code> / <code>MaterialSwitch</code> z Material Components.</li><li>Brak <code>contentDescription</code> w <code>ImageView</code> (ostrzeżenie Lint). Jest ważny dla czytników ekranu.</li></ul>
+      </section>
+    
+      <section class="codelab-step" data-label="Dostęp do widoków z kodu: `findViewById` a View Binding" data-duration="12">
+        <h3 is-upgraded>Problem, który rozwiązujemy</h3>
+<p>Układ XML opisuje <strong>wygląd</strong>, ale żeby cokolwiek zrobić z widokiem w Kotlinie (zmienić tekst, nasłuchiwać kliknięcia), potrzebujemy do niego <strong>referencji</strong> – zwykłego obiektu Kotlina wskazującego na konkretny <code>View</code> utworzony w pamięci podczas <code>inflate</code>. Android daje dwa główne sposoby na uzyskanie takiej referencji: starszy <code>findViewById</code> i nowszy <strong>View Binding</strong>.</p>
+<h3 is-upgraded>Sposób 1: <code>findViewById</code></h3>
+<pre><code class="language-kotlin">val button = findViewById&lt;Button&gt;(R.id.rollButton)
+</code></pre>
+<ul><li>Szuka widoku w drzewie, przeszukując je rekurencyjnie po <code>id</code>, i zwraca go jako <code>View?</code> (platformowy typ, patrz niżej), rzutowany na podany typ generyczny.</li><li>Wywołanie działa <strong>dopiero po</strong> <code>setContentView()</code> – wcześniej drzewo widoków nie istnieje.</li><li>Kompilator <strong>nie wie</strong>, jaki widok kryje się pod danym <code>R.id</code>. Błędy ujawniają się dopiero w czasie działania:</li><li>zły typ (<code>findViewById&lt;Button&gt;</code> na elemencie <code>TextView</code>) → <code>ClassCastException</code>,</li><li>nieistniejące w aktualnym layoucie <code>id</code> → <code>null</code>, a próba użycia → <code>NullPointerException</code> (to właśnie zademonstrowaliśmy w sekcji „Debugowanie aplikacji&quot;).</li><li>Każde odwołanie do widoku to osobne przeszukanie drzewa – przy wielu odwołaniach do tego samego widoku warto zapisać wynik w zmiennej (jak robimy w <code>rollDice()</code>), zamiast wywoływać <code>findViewById</code> wielokrotnie.</li></ul>
+<h3 is-upgraded>Sposób 2: View Binding</h3>
+<p><strong>View Binding</strong> to mechanizm generujący w czasie kompilacji (<em>compile time</em>) klasę Kotlina odpowiadającą jednemu plikowi layoutu. Klasa ta ma <strong>pole dla każdego widoku z atrybutem <code>android:id</code></strong>, z właściwym typem.</p>
+<h4 is-upgraded>Włączenie w projekcie</h4>
+<pre><code class="language-kotlin">// build.gradle.kts (Module :app)
+android {
+    buildFeatures {
+        viewBinding = true
+    }
+}
+</code></pre>
+<p>Po synchronizacji Gradle dla <strong>każdego</strong> pliku w <code>res/layout</code> powstaje osobna klasa wiązania (nie trzeba jej pisać ręcznie – generuje ją wtyczka Android Gradle Plugin podczas budowania, więc może nie być widoczna w drzewie projektu, ale jest dostępna do importu).</p>
+<h4 is-upgraded>Reguła nazewnictwa</h4>
+<p>Nazwa pliku w <code>snake_case</code> zamienia się na <code>PascalCase</code> i dostaje przyrostek <code>Binding</code>:</p>
+<table><thead><tr><th>Plik layoutu</th><th>Wygenerowana klasa</th></tr></thead><tbody><tr><td><code>activity_main.xml</code></td><td><code>ActivityMainBinding</code></td></tr><tr><td><code>activity_main_extended.xml</code></td><td><code>ActivityMainExtendedBinding</code></td></tr><tr><td><code>activity_settings.xml</code></td><td><code>ActivitySettingsBinding</code></td></tr><tr><td><code>item_dice_row.xml</code></td><td><code>ItemDiceRowBinding</code></td></tr></tbody></table>
+<p>Nazwa pola odpowiadającego widokowi to jego <code>id</code> zamienione na <code>camelCase</code>, np. <code>android:id=&quot;@+id/roll_button&quot;</code> → <code>binding.rollButton</code>, a <code>android:id=&quot;@+id/rollButton&quot;</code> (tak jak u nas) → <code>binding.rollButton</code> bez zmian.</p>
+<h4 is-upgraded>Tworzenie instancji w Aktywności</h4>
+<p>Wygenerowana klasa ma statyczną metodę <code>inflate()</code>, która tworzy hierarchię widoków <strong>i</strong> obiekt wiązania jednocześnie:</p>
+<pre><code class="language-kotlin">private lateinit var binding: ActivityMainExtendedBinding
+
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    binding = ActivityMainExtendedBinding.inflate(layoutInflater)
+    setContentView(binding.root)
+}
+</code></pre>
+<ul><li><code>layoutInflater</code> to obiekt systemowy dostępny w <code>Activity</code>, który „nadmuchuje&quot; XML, czyli buduje z niego obiekty <code>View</code>.</li><li><code>binding.root</code> to widok nadrzędny całego layoutu (u nas <code>ConstraintLayout</code>) – to jego przekazujemy do <code>setContentView()</code>.</li><li>Od tej pory dostęp do dowolnego widoku to po prostu <code>binding.idWidoku</code>, np. <code>binding.rollButton.setOnClickListener { ... }</code>, bez żadnego rzutowania.</li></ul>
+<aside class="special"><p><code>lateinit</code> jest tu potrzebny, ponieważ <code>binding</code> nie może powstać w momencie tworzenia obiektu aktywności (nie mamy jeszcze <code>layoutInflater</code> gotowego do użycia w sensownym kontekście) – inicjalizujemy je dopiero w <code>onCreate()</code>. Więcej o <code>lateinit</code> w dalszej części dokumentu.</p></aside>
+<h4 is-upgraded>Dlaczego to bezpieczniejsze: błędy przenoszą się do czasu kompilacji</h4>
+<p>To jest <strong>najważniejsza</strong> różnica względem <code>findViewById</code>:</p>
+<table><thead><tr><th>Sytuacja</th><th><code>findViewById</code></th><th>View Binding</th></tr></thead><tbody><tr><td>Błędne <code>id</code> (literówka, usunięty widok)</td><td>Kompiluje się, <code>null</code>/<code>NPE</code> w czasie działania</td><td><strong>Błąd kompilacji</strong> (Unresolved reference)</td></tr><tr><td>Zły typ (np. <code>Button</code> zamiast <code>TextView</code>)</td><td><code>ClassCastException</code> w czasie działania</td><td><strong>Niemożliwe</strong> – pole ma już poprawny typ</td></tr><tr><td>Wielokrotny dostęp do tego samego widoku</td><td>Trzeba pamiętać, by zapisać wynik w zmiennej</td><td>Zawsze <code>binding.widok</code>, bez dodatkowego kodu</td></tr><tr><td>Czytelność / podpowiedzi IDE</td><td>Trzeba znać typ i rzutować ręcznie</td><td>Autouzupełnianie pokazuje wszystkie widoki z <code>id</code></td></tr></tbody></table>
+<p>Dzięki temu refaktoryzacja layoutu (np. zmiana <code>id</code> przez <code>Shift+F6</code>) od razu pokazuje w kodzie, które miejsca wymagają poprawki – kompilator nie pozwoli zbudować aplikacji z nieaktualnym odwołaniem.</p>
+<h4 is-upgraded>Binding a zagnieżdżone layouty (<code>&lt;include&gt;</code>)</h4>
+<p>Jeśli layout zawiera inny layout przez <code>&lt;include layout=&quot;@layout/...&quot; android:id=&quot;@+id/zagniezdzony&quot; /&gt;</code>, wygenerowane wiązanie udostępnia też wiązanie dla tego fragmentu: <code>binding.zagniezdzony.jakisWidok</code>. Jeśli <code>&lt;include&gt;</code> nie ma nadanego <code>id</code>, w ogóle nie pojawi się w wygenerowanej klasie.</p>
+<h4 is-upgraded>Binding w innych miejscach niż <code>Activity</code></h4>
+<p>View Binding nie jest ograniczony do aktywności:</p>
+<ul><li><strong>Fragment</strong> – wiązanie tworzy się w <code>onCreateView</code>/<code>onViewCreated</code>, a w <code>onDestroyView</code> należy ustawić pole na <code>null</code> (np. <code>private var _binding: FragmentXBinding? = null</code>), bo widok fragmentu jest niszczony wcześniej niż sam obiekt fragmentu – inaczej powstaje wyciek pamięci.</li><li><strong>Adapter <code>RecyclerView</code> (<code>ViewHolder</code>)</strong> – zamiast <code>findViewById</code> w konstruktorze <code>ViewHolder</code>, przekazuje się gotowe <code>binding</code> z <code>inflate(parent, false)</code>.</li></ul>
+<p>Tych wariantów nie używamy w tym laboratorium, ale warto wiedzieć, że mechanizm jest spójny w całej aplikacji.</p>
+<h3 is-upgraded>Gdzie spotkaliśmy to w ćwiczeniu</h3>
+<ul><li><code>findViewById</code> w podstawowej wersji gry (<code>MainActivity</code>) – celowo, żeby zobaczyć też starszy, bardziej „surowy&quot; mechanizm i problem z <code>NullPointerException</code> w sekcji „Debugowanie aplikacji&quot;.</li><li>View Binding we wszystkich elementach „Rozbudowy aplikacji&quot;: <code>binding</code> w <code>MainActivityExtended</code> i <code>SettingsActivity</code>, a także <code>by lazy { arrayOf(binding.dice1Img, ...) }</code>, gdzie korzystamy z kilku pól wiązania naraz.</li></ul>
+<h3 is-upgraded>Typowe pułapki</h3>
+<ul><li>Próba użycia <code>binding</code> przed jego inicjalizacją (<code>UninitializedPropertyAccessException</code>) – patrz sekcja o <code>lateinit</code>.</li><li>Literówka w <code>id</code> w XML – błąd kompilacji od razu pokaże, które miejsce w kodzie przestało działać (to akurat zaleta, nie pułapka, ale bywa mylące dla początkujących, którzy oczekują błędu w czasie działania).</li><li>W projektach z fragmentami: brak wyzerowania wiązania w <code>onDestroyView</code> prowadzi do wycieku pamięci (nie dotyczy aktywności, ale warto o tym pamiętać na przyszłość).</li><li><code>viewBinding = true</code> trzeba dodać dla <strong>modułu</strong>, w którym chcemy go używać – nie jest włączony domyślnie w nowych projektach Empty Views Activity utworzonych starszymi szablonami.</li></ul>
+      </section>
+    
+      <section class="codelab-step" data-label="`lateinit` a `lazy`" data-duration="06">
+        <h3 is-upgraded>Problem</h3>
+<p>Kotlin domyślnie wymaga, aby zmienna <strong>nieanulowalna</strong> (<code>Binding</code>, a nie <code>Binding?</code>) była zainicjalizowana od razu. Tymczasem w aktywności nie możemy utworzyć wielu obiektów w momencie konstrukcji klasy, bo np. <code>layoutInflater</code> czy <code>binding</code> jest dostępne dopiero w <code>onCreate</code>. Kotlin daje na to dwa mechanizmy: <code>lateinit</code> i <code>by lazy</code>.</p>
+<h3 is-upgraded><code>lateinit var</code> – „zainicjalizuję później, ręcznie&quot;</h3>
+<pre><code class="language-kotlin">private lateinit var binding: ActivityMainExtendedBinding
+
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    binding = ActivityMainExtendedBinding.inflate(layoutInflater) // inicjalizacja
+    setContentView(binding.root)
+}
+</code></pre>
+<ul><li>Tylko <code>var</code>, typy nieanulowalne i <strong>nie</strong> typy proste (<code>Int</code>, <code>Boolean</code>).</li><li>Odczyt przed inicjalizacją rzuca <code>UninitializedPropertyAccessException</code>.</li><li>Sprawdzenie: <code>if (::binding.isInitialized) { ... }</code>.</li></ul>
+<h3 is-upgraded><code>val ... by lazy { }</code> – „zainicjalizuj przy pierwszym użyciu&quot;</h3>
+<pre><code class="language-kotlin">private val diceImgArray by lazy {
+    arrayOf(binding.dice1Img, binding.dice2Img, binding.dice3Img,
+            binding.dice4Img, binding.dice5Img)
+}
+</code></pre>
+<ul><li>Tylko <code>val</code>, inicjalizacja w lambdzie wykonywanej <strong>dopiero przy pierwszym odczycie</strong>, a wynik jest zapamiętywany.</li><li>Domyślnie bezpieczne wątkowo (<code>LazyThreadSafetyMode.SYNCHRONIZED</code>).</li><li>Działa dla każdego typu, także prostych.</li></ul>
+<h3 is-upgraded>Porównanie</h3>
+<table><thead><tr><th>~</th><th><code>lateinit var</code></th><th><code>by lazy</code></th></tr></thead><tbody><tr><td>Mutowalność</td><td><code>var</code> (można nadpisać)</td><td><code>val</code> (tylko do odczytu)</td></tr><tr><td>Kto decyduje o momencie inicjalizacji</td><td>Programista (przypisanie)</td><td>Pierwszy odczyt</td></tr><tr><td>Typy proste (<code>Int</code>)</td><td>Nie</td><td>Tak</td></tr><tr><td>Typowe użycie w Androidzie</td><td><code>binding</code>, widoki, adaptery</td><td>Tablice widoków, drogie obiekty</td></tr></tbody></table>
+<h3 is-upgraded>Dlaczego w ćwiczeniu jest <code>lateinit</code> i <code>lazy</code> jednocześnie?</h3>
+<p><code>binding</code> jest przypisywane w <code>onCreate</code>, więc musi być <code>lateinit var</code>. Tablica <code>diceImgArray</code> zależy od <code>binding</code>, ale gdyby była zwykłym <code>val diceImgArray = arrayOf(binding.dice1Img, ...)</code>, jej inicjalizator wykonałby się <strong>w konstruktorze aktywności</strong>, czyli przed <code>onCreate</code>, i aplikacja natychmiast by się zawiesiła. <code>by lazy</code> odracza tworzenie tablicy do pierwszego użycia, czyli po inicjalizacji <code>binding</code>.</p>
+<aside class="warning"><p>Jeśli odwołasz się do <code>diceImgArray</code> <strong>przed</strong> zainicjalizowaniem <code>binding</code> (np. wywołując <code>applySettings()</code> przed <code>inflate</code>), <code>lazy</code> też zakończy się błędem. Odroczenie nie zastępuje zachowania właściwej kolejności.</p></aside>
+      </section>
+    
+      <section class="codelab-step" data-label="Podsumowanie" data-duration="02">
+        <ul><li><strong>Activity</strong> to ekran zarządzany przez system. Jej cykl życia i niszczenie przy zmianie konfiguracji determinują, gdzie inicjalizujemy dane i gdzie je zapisujemy.</li><li><strong>Intent</strong> opisuje zamiar. Jawny służy nawigacji w aplikacji, niejawny współpracy z innymi aplikacjami – system dopasowuje go do <code>intent-filter</code>-ów zainstalowanych aplikacji (<em>intent resolution</em>). Wymóg deklarowania widoczności pakietów (<code>&lt;queries&gt;</code>, Android 11+) dotyczy tylko <strong>bezpośrednich zapytań o pakiety</strong> (<code>resolveActivity()</code>, <code>queryIntentActivities()</code>) dla akcji spoza listy <em>common intents</em> – nie dotyczy uruchamiania przez <code>Intent.createChooser()</code> ani popularnych akcji jak <code>ACTION_VIEW</code> (http/https) czy <code>ACTION_SEND</code>. Dane przekazujemy w <em>extras</em>, a wynik odbieramy przez Activity Result API.</li><li><strong>Zasoby</strong> oddzielają treść i wygląd od kodu. Dostęp do nich daje klasa <code>R</code>.</li><li><strong>Nasłuchiwacze</strong> pozwalają reagować na zdarzenia. W Kotlinie zapisujemy je jako lambdy.</li><li><strong>Elementy UI</strong> tworzą drzewo <code>View</code>/<code>ViewGroup</code>.</li><li><strong>View Binding</strong> generuje w czasie kompilacji typowane klasy dostępu do widoków z danego layoutu, dzięki czemu błędne <code>id</code> lub zły typ widoku wychodzą na etapie kompilacji, a nie dopiero podczas działania aplikacji (jak przy <code>findViewById</code>).</li><li><code>lateinit</code> ręcznie odracza inicjalizację zmiennej <code>var</code>, a <code>by lazy</code> automatycznie inicjalizuje <code>val</code> przy pierwszym odczycie.</li></ul>
+      </section>
+    
+  </div>
+
+  <script src="../../../modern-prettify.js"></script>
+  <script src="../../../theme-toggle.js"></script>
+  <script src="../../../codelab.js"></script>
+</body>
+</html>

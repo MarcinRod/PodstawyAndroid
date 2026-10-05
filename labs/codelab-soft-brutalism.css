@@ -1,0 +1,772 @@
+/**
+ * ============================================================================
+ * CODELAB SOFT-BRUTALISM THEME STYLESHEET
+ * ============================================================================
+ * 
+ * Aesthetic:
+ *   Soft-Brutalism combines the raw, structural geometry of traditional Brutalism
+ *   (solid 2-3px dark ink borders, flat offset box-shadows, high-contrast badges)
+ *   with friendly, accessible "soft" attributes (12px rounded radii, warm paper
+ *   backgrounds, pastel accent cards, and readable typography).
+ *
+ * Architecture & Contents:
+ *   1. CSS Custom Properties / Design Tokens (:root & html[data-theme="dark"])
+ *   2. Base Document Resets & Typography
+ *   3. Root Layout (.codelab flex wrapper, #main, #steps)
+ *   4. Fixed Header Bar (#codelab-title, nav buttons, theme toggle, time counter)
+ *   5. Navigation Drawer (#drawer, ordered step cards, counter badges)
+ *   6. Step Viewport & Reading Card (.codelab-step, .instructions)
+ *   7. Content Typography & Spacing (H1-H6, paragraphs, links, inline code)
+ *   8. Code Blocks & Syntax Highlighting (.tok-* tokens)
+ *   9. Media & Image Rows (responsive images, .codelab-image-row)
+ *  10. Custom Elements & Buttons (paper-button, action links)
+ *  11. Callout Asides (aside.special, aside.warning)
+ *  12. Floating Action Controls (#controls, #fabs, Previous/Next/Done buttons)
+ *  13. Step Transitions & Reduced Motion Animations
+ *  14. Responsive Layout Breakpoints (@media max-width: 1100px)
+ */
+
+/* ==========================================================================
+   1. Design Tokens & Theme Palettes
+   ========================================================================== */
+
+:root {
+  /* Core ink & paper tokens (Light Mode) */
+  --neo-ink: #252331;              /* Primary text, borders, and hard drop-shadows */
+  --neo-paper: #f6f1e8;            /* Main canvas background behind instructions */
+  --neo-surface: #fffdf8;          /* Instruction card and list item surface */
+  --neo-drawer-bg: #f9f5ed;        /* Sidebar drawer background */
+
+  /* Interactive & Accent Colors */
+  --neo-accent: #c2d7ef;           /* Hover states and secondary highlights */
+  --neo-red: #f2a18f;              /* Red accent token */
+  --neo-primary: #e4e4e4;          /* Top bar and active step button background */
+  --neo-link: #3d70a8;             /* Link text color */
+
+  /* Callout & Status Colors */
+  --neo-warning: #f4c2ae;          /* Warning aside background */
+  --neo-warning-accent: #c97863;   /* Warning aside border accent */
+  --neo-special: #c6e7c9;          /* Informational aside background & action buttons */
+  --neo-special-accent: #8fc194;   /* Informational aside border accent */
+
+  /* Geometry & Shadows */
+  --neo-shadow: rgba(37, 35, 49, 0.7); /* Hard brutalist shadow color */
+  --neo-radius: 12px;                  /* Standard corner radius */
+  --neo-radius-small: 8px;             /* Smaller corner radius for badges and buttons */
+  /* Font Families */
+  --neo-text-font: Arial, sans-serif;
+  --neo-code-font: "Source Code Pro", ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+/* Dark Theme Tokens (activated via html[data-theme="dark"] by theme-toggle.js) */
+html[data-theme="dark"] {
+  --neo-ink: #f2eef8;
+  --neo-paper: #1c1a24;
+  --neo-surface: #2a2735;
+  --neo-drawer-bg: #221f2b;
+  --neo-accent: #65c0db;
+  --neo-red: #d9614b;
+  --neo-primary: #5f5c6d;
+  --neo-link: #7ec8f0;
+  --neo-warning: #b5573c;
+  --neo-warning-accent: #e8a184;
+  --neo-special: #3f7a58;
+  --neo-special-accent: #79c99a;
+  --neo-shadow: rgba(20, 18, 29, 0.7);
+}
+
+/* ==========================================================================
+   2. Base Document Resets & Typography
+   ========================================================================== */
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  box-sizing: border-box;
+  background: var(--neo-paper);
+  color: var(--neo-ink);
+  font-family: var(--neo-text-font);
+   
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.codelab,
+.codelab #main,
+.codelab #drawer,
+.codelab #controls,
+.codelab-step,
+.codelab-step .instructions {
+  font-family: var(--neo-text-font);
+}
+
+/* ==========================================================================
+   3. Root Layout
+   ========================================================================== */
+
+/* Fullscreen viewport wrapper, offset 64px for fixed top bar */
+.codelab {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding-top: 64px;
+}
+
+/* ==========================================================================
+   4. Navigation Drawer (#drawer)
+   ========================================================================== */
+
+.codelab #drawer {
+  position: relative;
+  z-index: 100;
+  display: flex;
+  width: 360px;
+  flex-shrink: 0;
+  flex-direction: column;
+  overflow: auto;
+  border-right: 3px solid var(--neo-ink);
+  background: var(--neo-drawer-bg);
+}
+
+.codelab #drawer .steps {
+  flex: 1;
+  overflow: auto;
+  padding: 18px;
+}
+
+/* Step list counter configuration */
+.codelab #drawer .steps ol {
+  counter-reset: codelab-step;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.codelab #drawer .steps li {
+  counter-increment: codelab-step;
+}
+
+/* Step card inside drawer */
+.codelab #drawer .steps li a {
+  display: flex;
+  min-height: 82px;
+  position: relative;
+  align-items: center;
+  padding: 14px 16px 14px 62px;
+  border: 2px solid var(--neo-ink);
+  border-radius: var(--neo-radius);
+  background: var(--neo-surface);
+  box-shadow: 3px 3px 0 var(--neo-shadow);
+  color: var(--neo-ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* Numbered badge on each drawer step card */
+.codelab #drawer .steps li a::before {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  content: counter(codelab-step);
+  place-items: center;
+  border: 2px solid var(--neo-ink);
+  border-radius: var(--neo-radius);
+  background: var(--neo-primary);
+  color: var(--neo-ink);
+  font-size: 18px;
+  font-weight: 900;
+  transform: translateY(-50%);
+}
+
+.codelab #drawer .steps li a:hover {
+  background: var(--neo-accent);
+  color: var(--neo-ink);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--neo-shadow);
+}
+
+/* Active / Selected Step State */
+.codelab #drawer .steps li[selected] a {
+  background: var(--neo-primary);
+  color: var(--neo-ink);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--neo-shadow);
+}
+
+.codelab #drawer .steps li[selected] a::before {
+  background: var(--neo-surface);
+}
+
+/* ==========================================================================
+   5. Fixed Top Title Bar (#codelab-title)
+   ========================================================================== */
+
+.codelab #codelab-title {
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  display: flex;
+  width: 100%;
+  height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px 0 16px;
+  border-bottom: 3px solid var(--neo-ink);
+  background: var(--neo-primary);
+  color: var(--neo-ink);
+}
+
+.codelab #codelab-title h1 {
+  width: 0;
+  flex: 1;
+  margin: 0 8px;
+  overflow: hidden;
+  color: var(--neo-ink);
+  font-family: "Arial Black", Impact, sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.codelab #codelab-nav-buttons {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.codelab #codelab-nav-buttons #arrow-back,
+.codelab #codelab-nav-buttons #menu {
+  display: none;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--neo-ink);
+  border-radius: var(--neo-radius);
+  background: var(--neo-paper);
+  color: var(--neo-ink);
+  box-shadow: 3px 3px 0 var(--neo-shadow);
+  text-decoration: none;
+}
+
+.codelab #codelab-nav-buttons #arrow-back {
+  display: none;
+}
+
+/* Theme Toggle Button (Light/Dark Switcher) */
+.codelab #codelab-title #theme-toggle {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  margin-left: 12px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--neo-ink);
+  border-radius: var(--neo-radius);
+  background: var(--neo-paper);
+  color: var(--neo-ink);
+  box-shadow: 3px 3px 0 var(--neo-shadow);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.codelab #codelab-title #theme-toggle:hover {
+  background: var(--neo-accent);
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--neo-shadow);
+}
+
+.codelab #codelab-nav-buttons #arrow-back:hover,
+.codelab #codelab-nav-buttons #menu:hover {
+  background: var(--neo-accent);
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--neo-shadow);
+}
+
+/* Remaining Duration Counter */
+.codelab #time-remaining {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   6. Main Content Viewport & Step Card (.instructions)
+   ========================================================================== */
+
+.codelab #main {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  background: var(--neo-paper);
+}
+
+.codelab #steps {
+  min-height: 0;
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.codelab-step {
+  display: block;
+  line-height: 24px;
+}
+
+.codelab-step[hidden] {
+  display: none;
+}
+
+/* Card container holding step tutorial content */
+.codelab-step .instructions {
+  width: 75%;
+  margin: 24px auto 32px;
+  padding: 32px;
+  border: 3px solid var(--neo-ink);
+  border-radius: var(--neo-radius);
+  background: var(--neo-surface);
+  box-shadow: 6px 6px 0 var(--neo-shadow);
+  overflow-x: auto;
+}
+
+.codelab-step .instructions > pre,
+.codelab-step .instructions > img,
+.codelab-step .instructions > .image-container {
+  margin-right: auto;
+  margin-left: auto;
+}
+.codelab-step img.dark-invert {
+  transition: filter 0.2s ease;
+}
+
+html[data-theme="dark"] .codelab-step img.dark-invert {
+  filter: invert(1) hue-rotate(180deg) contrast(0.75);
+}
+/* ==========================================================================
+   7. Typography & Text Elements
+   ========================================================================== */
+
+.codelab-step h2.step-title,
+.codelab-step h2,
+.codelab-step h3,
+.codelab-step h4 {
+  font-size: 18px;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  color: var(--neo-ink);
+  font-family: "Arial Black", Impact, sans-serif;
+  font-weight: 900;
+}
+
+.codelab-step h4 {
+  font-size: 16px;
+  margin-top: 12px;
+  margin-bottom: 0px;
+}
+
+.codelab-step h2.step-title {
+  margin: 0px;
+  font-size: 24px !important;
+  line-height: 1.1 !important;
+}
+
+.codelab-step p,
+.codelab-step ul,
+.codelab-step li {
+  color: var(--neo-ink);
+  text-align: justify;
+  text-justify: inter-word;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.codelab-step p {
+  margin-top: 16px;
+}
+
+.codelab-step table {
+  width: 100%;
+  max-width: 100%;
+  margin: 20px auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 3px solid var(--neo-ink);
+  border-radius: var(--neo-radius);
+  overflow: hidden;
+  background: var(--neo-surface);
+  box-shadow: 4px 4px 0 var(--neo-shadow);
+}
+
+.codelab-step th,
+.codelab-step td {
+  padding: 12px 14px;
+  border-right: 2px solid var(--neo-ink);
+  border-bottom: 2px solid var(--neo-ink);
+  vertical-align: top;
+  text-align: left;
+  color: var(--neo-ink);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.codelab-step th:last-child,
+.codelab-step td:last-child {
+  border-right: none;
+}
+
+.codelab-step tr:last-child td {
+  border-bottom: none;
+}
+
+.codelab-step thead th {
+  background: var(--neo-primary);
+  font-family: "Arial Black", Impact, sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.codelab-step tbody tr:nth-child(even) td {
+  background: rgba(194, 215, 239, 0.28);
+}
+
+.codelab-step a {
+  color: var(--neo-link);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.codelab-step code:not(pre code) {
+  color: var(--neo-ink);
+  font-family: var(--neo-code-font);
+  font-size: 1em;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   8. Code Blocks & Syntax Highlighting
+   ========================================================================== */
+
+.codelab-step pre {
+  margin-top: 0px;
+  margin-bottom: 24px;
+  overflow: auto;
+  padding: 16px;
+  border: 3px solid var(--neo-ink);
+  border-radius: var(--neo-radius);
+  background: #343342;
+  box-shadow: 4px 4px 0 var(--neo-shadow);
+  color: #f5f7f8;
+  line-height: 1.5;
+}
+
+.codelab-step pre code {
+  background: transparent;
+  color: #f5f7f8;
+  font-family: var(--neo-code-font);
+}
+
+/* Syntax Token Colors (Generated by modern-prettify.js) */
+.codelab-step pre code .tok-comment { color: #aab7c4; font-style: italic; }
+.codelab-step pre code .tok-keyword { color: #ff79c6; }
+.codelab-step pre code .tok-type { color: #8be9fd; }
+.codelab-step pre code .tok-string { color: #a8e6a3; }
+.codelab-step pre code .tok-number { color: #2899b5; }
+.codelab-step pre code .tok-annotation { color: #ffb86c; }
+.codelab-step pre code .tok-function { color: #50fa7b; }
+.codelab-step pre code .tok-parameter { color: #38a3d5; }
+.codelab-step pre code .tok-property { color: #bd93f9; }
+
+/* ==========================================================================
+   9. Media & Image Rows
+   ========================================================================== */
+
+.codelab-step img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-right: auto;
+  margin-bottom: 24px;
+  margin-top: 24px;
+  margin-left: auto;
+}
+
+.codelab-step p img,
+.codelab-step li img {
+  display: inline-block;
+  margin: 0;
+  vertical-align: middle;
+}
+
+/* Side-by-side flex layout for adjacent screenshots */
+.codelab-image-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 16px;
+}
+
+.codelab-image-row img {
+  margin: 0;
+}
+
+/* ==========================================================================
+   10. Action Buttons & Focus Outlines
+   ========================================================================== */
+
+.codelab-step paper-button.colored {
+  display: inline-flex;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  padding: 0.7em 0.9em;
+  border: 2px solid var(--neo-ink);
+  border-radius: var(--neo-radius);
+  background: var(--neo-special);
+  color: var(--neo-ink);
+  font-family: "Arial Black", Impact, sans-serif;
+  font-weight: 900;
+  text-decoration: none;
+  box-shadow: 3px 3px 0 var(--neo-shadow);
+}
+
+.codelab-step paper-button.colored:hover {
+  background: var(--neo-accent);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--neo-shadow);
+}
+
+.codelab-step paper-button.colored:focus-visible,
+.codelab #codelab-nav-buttons a:focus-visible,
+.codelab #controls a:focus-visible {
+  outline: 3px solid var(--neo-ink);
+  outline-offset: 4px;
+}
+
+/* ==========================================================================
+   11. Callout Asides (special / warning)
+   ========================================================================== */
+
+.codelab-step aside {
+  margin-top: 24px;
+  margin-bottom: 24px;
+  padding: 8px 12px;
+  border: 2px solid var(--neo-ink);
+  border-left-width: 8px;
+  border-radius: var(--neo-radius);
+  box-shadow: 3px 3px 0 var(--neo-shadow);
+  font-weight: 600;
+}
+
+.codelab-step aside p {
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+/* Warning callout (from '> aside negative') */
+.codelab-step aside.warning {
+  background: var(--neo-warning);
+  border-color: var(--neo-warning-accent);
+  color: var(--neo-ink);
+}
+
+/* Informational callout (from '> aside positive') */
+.codelab-step aside.special {
+  background: var(--neo-special);
+  border-color: var(--neo-special-accent);
+  color: var(--neo-ink);
+}
+
+/* ==========================================================================
+   12. Floating Action Controls (#controls, #fabs)
+   ========================================================================== */
+
+.codelab #controls {
+  position: absolute;
+  right: 0;
+  bottom: 32px;
+  left: 0;
+  z-index: 1001;
+  display: flex;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+.codelab #controls #fabs {
+  display: flex;
+  width: calc(100% - 32px);
+  align-items: center;
+  gap: 8px;
+}
+
+.codelab #controls #fabs .spacer {
+  flex: 1;
+}
+
+.codelab #controls #previous-step,
+.codelab #controls #next-step,
+.codelab #controls #done {
+  padding: 6px 24px;
+  border: 2px solid var(--neo-ink);
+  border-radius: var(--neo-radius);
+  background: var(--neo-primary);
+  box-shadow: 3px 3px 0 var(--neo-shadow);
+  color: var(--neo-ink);
+  font-family: "Arial Black", Impact, sans-serif;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.codelab #controls #next-step {
+  margin-right: 12px;
+}
+
+.codelab #controls #previous-step:hover,
+.codelab #controls #next-step:hover,
+.codelab #controls #done:hover {
+  background: var(--neo-accent);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--neo-shadow);
+}
+
+/* ==========================================================================
+   13. Step Transitions & Animation Keyframes
+   ========================================================================== */
+
+@keyframes codelab-step-enter-next {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes codelab-step-enter-previous {
+  from {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.codelab-step.step-enter-next {
+  animation: codelab-step-enter-next 400ms ease-out;
+}
+
+.codelab-step.step-enter-previous {
+  animation: codelab-step-enter-previous 400ms ease-out;
+}
+
+/* Accessibility: shorten animation duration if user prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .codelab-step.step-enter-next,
+  .codelab-step.step-enter-previous {
+    animation-duration: 200ms;
+  }
+}
+
+/* ==========================================================================
+   14. Responsive Layout Breakpoints
+   ========================================================================== */
+
+@media (max-width: 1100px) {
+  /* Show hamburger menu icon on mobile/tablet */
+  .codelab #codelab-nav-buttons #menu {
+    display: flex;
+  }
+
+  /* Transform drawer into an off-canvas slide-out sheet */
+  .codelab #drawer {
+    position: fixed;
+    top: 64px;
+    bottom: 0;
+    left: 0;
+    width: min(360px, 88vw);
+    transform: translateX(-100%);
+    transition: transform 160ms ease;
+  }
+
+  /* Open state toggled by [drawer--open] attribute on .codelab */
+  .codelab[drawer--open] #drawer {
+    transform: translateX(0);
+  }
+
+  /* Expand instruction card width for smaller displays */
+  .codelab-step .instructions {
+    width: calc(100% - 16px);
+    margin: 16px 8px 24px;
+  }
+
+  .codelab #controls {
+    bottom: 16px;
+  }
+}
+/* Author label styling */
+.codelab #codelab-title .title-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin-left: 8px; /* Align with original title margin */
+}
+
+.codelab #codelab-title .title-container h1 {
+  width: auto;
+  flex: none;
+  margin: 0;
+  overflow: visible;
+}
+
+.codelab #codelab-title .author {
+  font-size: 14px;
+  font-style: italic;
+  color: var(--neo-ink);
+  margin-top: 2px;
+}
+/* Align ordered lists with normal text (no indentation) */
+.codelab ol {
+  margin-left: 0;
+  padding-left: 0;
+  list-style-position: inside; /* numbers appear inside the block, aligning left */
+}
+
+.codelab ol li {
+  margin-left: 0;
+  padding-left: 0.2rem; /* slight spacing for readability */
+}

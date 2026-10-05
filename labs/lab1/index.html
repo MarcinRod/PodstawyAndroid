@@ -1,0 +1,956 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta charset="UTF-8">
+  <title>Laboratorium 1 - Gra w kości</title>
+  <link rel="icon" type="image/svg+xml" href="../../../assets/android-favicon.svg">
+  <link rel="stylesheet" href="../../../assets/material-icons.css">
+  <link rel="stylesheet" href="../../../codelab-soft-brutalism.css">
+</head>
+<body>
+    <div class="codelab"
+      id="lab1_diceroller"
+      data-title="Laboratorium 1 - Gra w kości"
+      data-author="by Marcin Rodziewicz">
+    
+      <section class="codelab-step" data-label="Wprowadzenie" data-duration="02">
+        <h3 is-upgraded>TODO:</h3>
+<p>- Dopisać teorię o view binding by można było udzielić odpowiedzi na pytania.</p>
+<p>W tym ćwiczeniu zbudujemy prostą aplikację do rzucania kośćmi pokazującą, jak tworzyć proste układy (layouts) oraz używać Aktywności (Activities) i Intencji (Intents).</p>
+<img src="img/diceRollerPreview.png" alt="img\\diceRollerPreview.png"  width="360.00" />
+<p>W tym ćwiczeniu nauczysz się, jak:</p>
+<ul><li>utworzyć prostą aplikację w Android Studio</li><li>tworzyć interfejs użytkownika (UI) za pomocą <code>ConstraintLayout</code></li><li>tworzyć Aktywności i używać Intencji</li><li>uruchamiać i debugować aplikację</li></ul>
+      </section>
+    
+      <section class="codelab-step" data-label="Tworzenie pierwszego projektu" data-duration="05">
+        <h4 is-upgraded>1 Otwórz Android Studio i utwórz projekt</h4>
+<p>Otwórz Android Studio i wybierz opcję <strong>New Project</strong>.</p>
+<img src="img/1.jpg" alt="img\\1.jpg"  width="720.00" />
+<h4 is-upgraded>2 Wybór szablonu</h4>
+<p>Wybierz szablon <strong>Empty Views Activity</strong> dla swojej aplikacji. Możesz wybierać spośród kilku predefiniowanych szablonów aplikacji dla różnych urządzeń. Następnie kliknij <strong>Next</strong>.</p>
+<img src="img/lab1_2.png" alt="img\\lab1_2.png"  width="720.00" />
+<h4 is-upgraded>3 Konfiguracja projektu</h4>
+<p>Określ nazwę swojej aplikacji (np. <code>DiceRoller</code>). Utwórz unikalną nazwę pakietu (Package name), która identyfikuje aplikację, np. <code>com.mr.diceroller</code>. Wybierz odpowiednią lokalizację projektu (Save location) i wskaż język używany do napisania aplikacji (wybierz <strong>Kotlin</strong>). Na koniec wybierz platformę, na której aplikacja będzie działać, i określ minimalny wymagany poziom SDK (Android version). Jako język konfiguracji budowania (Build configuration language) wybierz <em>Kotlin DSL (build.gradle.kts)</em>. Kliknij <strong>Finish</strong>.</p>
+<img src="img/lab1_3.png" alt="img\\lab1_3.png"  width="720.00" />
+<h4 is-upgraded>4 Oczekiwanie na zbudowanie</h4>
+<p>Poczekaj na zakończenie procesu tworzenia projektu.</p>
+<h4 is-upgraded>5 Sukces</h4>
+<p>Pierwszy projekt został utworzony!</p>
+      </section>
+    
+      <section class="codelab-step" data-label="Struktura Projektu" data-duration="05">
+        <p>Zapoznaj się ze strukturą projektu. Widok projektu można zmienić, wybierając opcje w lewym górnym menu panelu nawigacyjnego (np. z domyślnego widoku <em>Android</em> na widok <em>Project</em>, aby zobaczyć pliki z perspektywy systemu operacyjnego).</p>
+<img src="img/lab1_4.jpg" alt="img\\lab1_4.jpg"  width="720.00" />
+<h4 is-upgraded>Najważniejsze elementy:</h4>
+<p><strong><code>app/src/main/res/layout/activity_main.xml</code></strong></p>
+<p>Plik XML z układem dla aktywności, którą dodałeś podczas tworzenia projektu. Zawiera aktualną treść wyświetlaną użytkownikowi. Plik domyślnie zawiera element <code>TextView</code> z tekstem &quot;Hello world!&quot;.</p>
+<p><strong><code>app/src/main/java/package_name/MainActivity.kt</code></strong></p>
+<p>Zakładka z tym plikiem pojawia się w Android Studio po zakończeniu kreatora nowego projektu. Znajdziesz w nim definicję klasy dla utworzonej Aktywności. Po zbudowaniu i uruchomieniu aplikacji, klasa <code>Activity</code> uruchamia aktywność i ładuje plik układu mówiący &quot;Hello World!&quot;. Jest to punkt wejścia do aplikacji.</p>
+<p><strong><code>app/src/main/AndroidManifest.xml</code></strong></p>
+<p>Plik manifestu opisuje podstawowe cechy aplikacji i definiuje każdy z jej komponentów.</p>
+<p><strong><code>app/build.gradle</code> (lub <code>build.gradle.kts</code>)</strong></p>
+<p>Android Studio używa narzędzia Gradle do kompilacji i budowy aplikacji. Istnieje plik <code>build.gradle</code> dla każdego modułu projektu, a także dla całego projektu. Zazwyczaj interesuje nas ten pierwszy (dla modułu <code>app</code>). To tutaj ustawiane są zależności (dependencies) i ustawienia Androida:</p>
+<ul><li><code>compileSdk</code>: wersja platformy, względem której aplikacja jest kompilowana.</li><li><code>applicationId</code>: w pełni kwalifikowana nazwa pakietu.</li><li><code>minSdk</code>: najniższa wersja Androida obsługiwana przez aplikację.</li><li><code>targetSdk</code>: najwyższa wersja Androida, na której aplikacja była testowana.</li></ul>
+<p><strong><code>app/src/main/res</code></strong></p>
+<p>Podkatalogi znajdujące się w <code>/res</code> zawierają zasoby aplikacji:</p>
+<ul><li><code>drawable/</code>: Katalog dla obiektów graficznych (takich jak bitmapy).</li><li><code>layout/</code>: Katalog dla plików definiujących interfejs użytkownika, takich jak <code>activity_main.xml</code>.</li><li><code>mipmap/</code>: Katalog dla plików ikon aplikacji.</li><li><code>values/</code>: Katalog dla innych plików XML zawierających zasoby, takie jak definicje ciągów znaków (<code>strings.xml</code>) i kolorów (<code>colors.xml</code>).</li></ul>
+      </section>
+    
+      <section class="codelab-step" data-label="Tworzenie prostego układu" data-duration="20">
+        <h3 is-upgraded>1 Otwórz plik układu</h3>
+<p>Otwórz plik <code>activity_main.xml</code> (jeśli nie jest jeszcze otwarty).</p>
+<h3 is-upgraded>2 Przygotowanie zasobów graficznych</h3>
+<p>Zbudujemy docelowy układ zawierający dwie kości do gry, przycisk i pole tekstowe.</p>
+<img src="img/lab1_5.png" alt="img\\lab1_5.png"  width="720.00" />
+<p>Dodaj dostarczone obrazy kości (<code>dice_1.png</code> do <code>dice_6.png</code>) do folderu <code>drawable</code>, przeciągając je tam lub wybierając opcję <strong>Import Drawables</strong> w zakładce <strong>Resource Manager</strong> po lewej stronie.</p>
+<img src="img/lab1_6.jpg" alt="img\\lab1_6.jpg"  width="720.00" />
+<h3 is-upgraded>3 Dodawanie komponentów</h3>
+<p>Dodaj dwa obiekty <code>ImageView</code> i jeden <code>Button</code> do istniejącego już <code>TextView</code>, przeciągając widżety z palety (Palette) do okna i zmień ich identyfikatory (używane do dostępu do elementu z poziomu kodu) w zakładce <strong>Attributes</strong>:</p>
+<img src="img/lab1_7.jpg" alt="img\\lab1_7.jpg"  width="720.00" />
+<table><thead><tr><th>Element</th><th>Id</th></tr></thead><tbody><tr><td>Pierwszy ImageView</td><td><code>dice1Img</code></td></tr><tr><td>Drugi ImageView</td><td><code>dice2Img</code></td></tr><tr><td>Przycisk (Button)</td><td><code>rollButton</code></td></tr><tr><td>Tekst (TextView)</td><td><code>rollResultText</code></td></tr></tbody></table>
+<p>Podczas dodawania obrazów zostaniesz poproszony o wybór grafiki. Wybierz jeden z dodanych obrazków kości.</p>
+<h3 is-upgraded>4 Pozycjonowanie elementów</h3>
+<p>Ustaw pozycje elementów, definiując ograniczenia i inne odpowiednie parametry. Można to zrobić w kodzie XML lub w trybie widoku Design. Dla kodu XML można użyć:</p>
+<table>
+<thead>
+<tr>
+<th>Element id</th>
+<th colspan="1"></th>
+</tr>
+</thead>
+<tbody>
+<!-- dice1Img -->
+<tr>
+<td rowspan="8"><strong><code>dice1Img</code></strong></td>
+<td align="center"><strong>Atrybuty</strong></td>
+</tr>
+<tr>
+<td>
+<code>android:layout_width="160dp"</code><br>
+<code>android:layout_height="200dp"</code>
+</td>
+</tr>
+<tr>
+<td align="center"><strong>Opis</strong></td>
+</tr>
+<tr>
+<td>Ustawia szerokość i wysokość obiektu <code>ImageView</code> na 160 i 200 dp (piksele niezależne od gęstości).</td>
+</tr>
+<tr>
+<td align="center"><strong>Atrybuty</strong></td>
+</tr>
+<tr>
+<td>
+<code>app:layout_constraintBottom_toTopOf="@+id/rollResultText"</code><br>
+<code>app:layout_constraintStart_toStartOf="parent"</code><br>
+<code>android:layout_marginStart="16dp"</code><br>
+<code>android:layout_marginBottom="16dp"</code>
+</td>
+</tr>
+<tr>
+<td align="center"><strong>Opis</strong></td>
+</tr>
+<tr>
+<td>Ustawia pozycję <code>ImageView</code>. Atrybut <code>Start_toStartOf</code> ustawia początkową pozycję w osi x względem początku kontenera (<code>"parent"</code>) — zazwyczaj lewa krawędź. <code>Bottom_toTopOf</code> przypina dół obrazka do góry tekstu <code>rollResultText</code>. Atrybuty <code>marginStart</code> i <code>marginBottom</code> dodają marginesy.</td>
+</tr>
+<!-- dice2Img -->
+<tr>
+<td rowspan="8"><strong><code>dice2Img</code></strong></td>
+<td align="center"><strong>Atrybuty</strong></td>
+</tr>
+<tr>
+<td>
+<code>android:layout_width="160dp"</code><br>
+<code>android:layout_height="200dp"</code>
+</td>
+</tr>
+<tr>
+<td align="center"><strong>Opis</strong></td>
+</tr>
+<tr>
+<td>Ustawia szerokość i wysokość obiektu <code>ImageView</code> na 160 i 200 dp.</td>
+</tr>
+<tr>
+<td align="center"><strong>Atrybuty</strong></td>
+</tr>
+<tr>
+<td>
+<code>app:layout_constraintBottom_toTopOf="@+id/rollResultText"</code><br>
+<code>app:layout_constraintEnd_toEndOf="parent"</code><br>
+<code>android:layout_marginEnd="16dp"</code><br>
+<code>android:layout_marginBottom="16dp"</code>
+</td>
+</tr>
+<tr>
+<td align="center"><strong>Opis</strong></td>
+</tr>
+<tr>
+<td>Podobnie jak wyżej. Atrybut <code>End_toEndOf</code> ustawia końcową pozycję względem końca kontenera (zazwyczaj prawa krawędź).</td>
+</tr>
+<!-- rollButton -->
+<tr>
+<td rowspan="8"><strong><code>rollButton</code></strong></td>
+<td align="center"><strong>Atrybuty</strong></td>
+</tr>
+<tr>
+<td>
+<code>android:layout_width="0dp"</code><br>
+<code>android:layout_height="wrap_content"</code><br>
+<code>android:text="Roll!"</code><br>
+<code>app:backgroundTint="@color/myBlue"</code>
+</td>
+</tr>
+<tr>
+<td align="center"><strong>Opis</strong></td>
+</tr>
+<tr>
+<td>Ustawia szerokość i wysokość przycisku, wyświetlany tekst i kolor tła. Wartość <code>0dp</code> dla szerokości (<em>match constraint</em>) sprawia, że przycisk rozciąga się do zdefiniowanych ograniczeń bocznych.</td>
+</tr>
+<tr>
+<td align="center"><strong>Atrybuty</strong></td>
+</tr>
+<tr>
+<td>
+<code>android:layout_marginStart="16dp"</code><br>
+<code>android:layout_marginTop="16dp"</code><br>
+<code>android:layout_marginEnd="16dp"</code><br>
+<code>app:layout_constraintEnd_toEndOf="parent"</code><br>
+<code>app:layout_constraintStart_toStartOf="parent"</code><br>
+<code>app:layout_constraintTop_toBottomOf="@+id/rollResultText"</code>
+</td>
+</tr>
+<tr>
+<td align="center"><strong>Opis</strong></td>
+</tr>
+<tr>
+<td>Ustawia pozycję przycisku: wycentrowany poziomo względem rodzica, umieszczony poniżej <code>rollResultText</code> z marginesami po wszystkich stronach.</td>
+</tr>
+<!-- rollResultText -->
+<tr>
+<td rowspan="8"><strong><code>rollResultText</code></strong></td>
+<td align="center"><strong>Atrybuty</strong></td>
+</tr>
+<tr>
+<td>
+<code>android:layout_width="0dp"</code><br>
+<code>android:layout_height="wrap_content"</code><br>
+<code>android:text="Hello_world!"</code><br>
+<code>android:textAlignment="center"</code><br>
+<code>android:textSize="18sp"</code>
+</td>
+</tr>
+<tr>
+<td align="center"><strong>Opis</strong></td>
+</tr>
+<tr>
+<td>Ustawia szerokość, wysokość, tekst, wyrównanie i rozmiar tekstu w jednostkach <code>sp</code> (odpowiednik <code>dp</code> dla fontów).</td>
+</tr>
+<tr>
+<td align="center"><strong>Atrybuty</strong></td>
+</tr>
+<tr>
+<td>
+<code>app:layout_constraintBottom_toBottomOf="parent"</code><br>
+<code>app:layout_constraintLeft_toLeftOf="parent"</code><br>
+<code>app:layout_constraintRight_toRightOf="parent"</code><br>
+<code>app:layout_constraintTop_toTopOf="parent"</code>
+</td>
+</tr>
+<tr>
+<td align="center"><strong>Opis</strong></td>
+</tr>
+<tr>
+<td>Ta kombinacja ograniczeń (<em>constraints</em>) spowoduje, że widok zostanie wyśrodkowany na ekranie — zarówno poziomo, jak i pionowo.</td>
+</tr>
+</tbody>
+</table>
+<aside class="warning"><p><strong>UWAGA 1:</strong> Atrybut <code>text</code> jest podświetlony, ponieważ ciąg &quot;Roll!&quot; jest wpisany na sztywno (hardcoded) w kodzie XML, co nie jest dobrą praktyką. Zajmiemy się tym w następnych krokach.</p>
+<p><strong>UWAGA 2:</strong> Zauważ, że <code>@color/myBlue</code> jest podświetlone na czerwono. Wpisaliśmy nazwę zasobu koloru, ale jeszcze go nie stworzyliśmy.</p></aside>
+<h3 is-upgraded>5 Eksportowanie tekstów i kolorów</h3>
+<p>Eksportuj ciągi znaków (strings). W przypadku każdego ciągu z ostrzeżeniem &quot;hardcoded&quot; wyeksportuj zasób do pliku <code>strings.xml</code>, zaznaczając linię i otwierając menu szybkich akcji (<code>Alt+Enter</code> lub ikona żarówki) -&gt; <strong>Extract string resource</strong>.</p>
+<div class="codelab-image-row"><img src="img/lab1_8.png" alt="img\\lab1_8.png"  width="300.00" /><img src="img/lab1_9.png" alt="img\\lab1_9.png"  width="300.00" /></div>
+<p>Utwórz kolor &quot;myBlue&quot;. Naciśnij <code>Alt+Enter</code> na podświetlonym błędzie &quot;myBlue&quot;, wybierz <strong>Create color value resource</strong> i w kolejnym oknie wybierz odpowiedni odcień niebieskiego.</p>
+<div class="codelab-image-row"><img src="img/lab1_10.png" alt="img\\lab1_10.png"  width="300.00" /><img src="img/lab1_11.png" alt="img\\lab1_11.png"  width="300.00" /></div>
+<p>Ostateczny kod XML (<code>activity_main.xml</code>) powinien wyglądać mniej więcej tak (upewnij się, że używasz wyeksportowanych zasobów <code>@string/...</code>):</p>
+<h4 is-upgraded>activity_main.xml</h4>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;
+    xmlns:tools=&quot;http://schemas.android.com/tools&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;match_parent&quot;
+    tools:context=&quot;.MainActivity&quot;&gt;
+
+    &lt;TextView
+        android:id=&quot;@+id/rollResultText&quot;
+        android:layout_width=&quot;0dp&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:text=&quot;@string/hello_world&quot;
+        android:textAlignment=&quot;center&quot;
+        android:textSize=&quot;18sp&quot;
+        app:layout_constraintBottom_toBottomOf=&quot;parent&quot;
+        app:layout_constraintLeft_toLeftOf=&quot;parent&quot;
+        app:layout_constraintRight_toRightOf=&quot;parent&quot;
+        app:layout_constraintTop_toTopOf=&quot;parent&quot; /&gt;
+
+    &lt;Button
+        android:id=&quot;@+id/rollButton&quot;
+        android:layout_width=&quot;0dp&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:layout_marginStart=&quot;16dp&quot;
+        android:layout_marginTop=&quot;16dp&quot;
+        android:layout_marginEnd=&quot;16dp&quot;
+        android:text=&quot;@string/roll&quot;
+        app:backgroundTint=&quot;@color/myBlue&quot;
+        app:layout_constraintEnd_toEndOf=&quot;parent&quot;
+        app:layout_constraintStart_toStartOf=&quot;parent&quot;
+        app:layout_constraintTop_toBottomOf=&quot;@+id/rollResultText&quot; /&gt;
+
+    &lt;ImageView
+        android:id=&quot;@+id/dice1Img&quot;
+        android:layout_width=&quot;160dp&quot;
+        android:layout_height=&quot;200dp&quot;
+        android:layout_marginStart=&quot;16dp&quot;
+        android:layout_marginBottom=&quot;16dp&quot;
+        app:layout_constraintBottom_toTopOf=&quot;@+id/rollResultText&quot;
+        app:layout_constraintStart_toStartOf=&quot;parent&quot;
+        tools:ignore=&quot;ContentDescription&quot;
+        app:srcCompat=&quot;@drawable/dice_2&quot; /&gt;
+
+    &lt;ImageView
+        android:id=&quot;@+id/dice2Img&quot;
+        android:layout_width=&quot;160dp&quot;
+        android:layout_height=&quot;200dp&quot;
+        android:layout_marginEnd=&quot;16dp&quot;
+        android:layout_marginBottom=&quot;16dp&quot;
+        app:layout_constraintBottom_toTopOf=&quot;@+id/rollResultText&quot;
+        app:layout_constraintEnd_toEndOf=&quot;parent&quot;
+        app:srcCompat=&quot;@drawable/dice_1&quot; /&gt;
+
+&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;
+</code></pre>
+      </section>
+    
+      <section class="codelab-step" data-label="Implementacja prostej aplikacji rzucającej kośćmi" data-duration="15">
+        <h3 is-upgraded>1 Cykl życia aplikacji (Application Lifecycle)</h3>
+<p>Aplikacje systemu Android wykorzystują klasę aktywności (ang. <em>Activity</em>) jako punkt wejścia. Aktywność udostępnia również obszar do rysowania interfejsu użytkownika oraz umożliwia interakcję użytkownika z aplikacją. Dobrą praktyką jest minimalizacja liczby aktywności w aplikacji. Preferowanym modelem jest model jednej aktywności.</p>
+<!-- ZMIANA (1): wyjaśnienie sprzeczności z modelem jednej aktywności -->
+<aside class="special"><p><strong>Uwaga:</strong> W tym laboratorium świadomie tworzymy kilka aktywności (<code>MainActivity</code>, <code>MainActivityExtended</code>, <code>SettingsActivity</code>). To zabieg dydaktyczny: pozwala pokazać, jak działają Intencje i jak przekazywać dane między ekranami. W kolejnych laboratoriach poznamy nawigację między ekranami w obrębie jednej aktywności.</p></aside>
+<p>Ważnym aspektem aktywności jest jej cykl życia, który definiuje kolejne etapy jej działania – od uruchomienia aż do zamknięcia. System Android zarządza cyklem życia, przechodząc przez następujące stany:</p>
+<!-- ZMIANA (2): dodano onRestart() -->
+<ul><li><code>onCreate()</code> – wywoływana podczas inicjalizacji aktywności, odpowiada za tworzenie interfejsu użytkownika oraz załadowanie zasobów,</li><li><code>onStart()</code> – aktywność staje się widoczna na ekranie,</li><li><code>onResume()</code> – aktywność przechodzi na pierwszy plan, umożliwiając użytkownikowi interakcję,</li><li><code>onPause()</code> – aktywność schodzi z pierwszego planu, np. przesłania ją okno dialogowe,</li><li><code>onStop()</code> – aktywność przestaje być widoczna, ale nadal pozostaje w pamięci,</li><li><code>onRestart()</code> – wywoływana, gdy aktywność zatrzymana wcześniej przez <code>onStop()</code> wraca na ekran (np. użytkownik wraca do aplikacji). Po niej system wywołuje ponownie <code>onStart()</code>,</li><li><code>onDestroy()</code> – aktywność zostaje usunięta z pamięci, np. w wyniku zamknięcia aplikacji.</li></ul>
+<aside class="special"><p><strong>Informacja:</strong> Nie wszystkie z tych metod muszą być nadpisywane – implementujemy tylko te, które są potrzebne do poprawnego działania aplikacji, np. do zwalniania zasobów czy zapisywania stanu. Wyjątkiem jest metoda <code>onCreate()</code>, którą zawsze należy nadpisać, ponieważ to w niej inicjalizowany jest interfejs użytkownika oraz kluczowe komponenty aplikacji.</p></aside>
+<!-- ZMIANA (2): wzmianka o onSaveInstanceState -->
+<aside class="warning"><p><strong>Zmiana konfiguracji i zapis stanu:</strong> Obrót ekranu, zmiana języka lub trybu ciemnego powoduje <strong>zniszczenie i ponowne utworzenie</strong> aktywności (<code>onPause -&gt; onStop -&gt; onDestroy -&gt; onCreate</code>). Zwykłe zmienne w klasie aktywności są wtedy tracone. Przed zniszczeniem system wywołuje metodę <code>onSaveInstanceState(outState: Bundle)</code>, w której można zapisać niewielki stan. Odczytamy go potem z parametru <code>savedInstanceState</code> metody <code>onCreate()</code> (ten sam, który widzisz w sygnaturze <code>onCreate</code>). Na tym laboratorium nie implementujemy zapisu stanu, więc <strong>gra z dalszej części ćwiczenia rozpocznie się od nowa po obrocie ekranu</strong>. Jest to znane ograniczenie. Docelowo stan przechowuje się w <code>ViewModel</code>.</p></aside>
+<p>Otwórz plik <code>MainActivity.kt</code> i przeanalizuj jego zawartość.</p>
+<aside class="special"><p><strong>Uwaga</strong> Zawartość onCreate może się nieznacznie różnić w stosunku do prezentowanej formy</p></aside>
+<h4 is-upgraded>MainActivity.kt</h4>
+<pre><code class="language-kotlin">package com.mr.diceroller
+
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+    }
+}
+</code></pre>
+<p>Widzimy klasę o nazwie <code>MainActivity</code>, która rozszerza klasę <code>AppCompatActivity</code>. Podstawowa implementacja klasy <code>MainActivity</code> musi przesłonić (<code>override</code>) metodę <code>onCreate()</code> swojej klasy nadrzędnej. Metoda <code>onCreate</code> to pierwsza metoda cyklu życia, która jest uruchamiana, gdy użytkownik startuje aplikację. W podstawowej implementacji to właśnie w tym miejscu określasz układ, który powinien być używany przez tę aktywność, korzystając z metody <code>setContentView()</code>. Plik układu jest określony przez zasób zapisany w automatycznie generowanym pliku <code>R</code>.</p>
+<p>Zmodyfikuj kod klasy <code>MainActivity</code> (dodaj import <code>android.util.Log</code>):</p>
+<h4 is-upgraded>MainActivity.kt</h4>
+<pre><code class="language-kotlin">package com.mr.diceroller
+
+import android.os.Bundle
+import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.i(localClassName, &quot;onCreate&quot;)
+        setContentView(R.layout.activity_main)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.i(localClassName, &quot;onStart&quot;)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.i(localClassName, &quot;onResume&quot;)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.i(localClassName, &quot;onPause&quot;)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.i(localClassName, &quot;onStop&quot;)
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        Log.i(localClassName, &quot;onRestart&quot;)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.i(localClassName, &quot;onDestroy&quot;)
+    }
+}
+</code></pre>
+<p>Przesłoniliśmy wszystkie metody cyklu życia. Zazwyczaj nie ma potrzeby nadpisywania ich wszystkich, ale ten przykład pokaże, jak i kiedy uruchamiana jest każda z metod. Kod ten używa również metody <code>Log</code>, która pozwala na wyświetlanie wiadomości w konsoli <strong>Logcat</strong>. Ta metoda przyjmuje dwa argumenty: tag (znacznik) oraz wiadomość do wyświetlenia. Tag może być użyty do identyfikacji źródła logu.</p>
+<p>Uruchom aplikację i obserwuj logi w oknie Logcat.</p>
+<img src="img/lab1_19.png" alt="img\\lab1_19.png"  width="720.00" />
+<p>Sprawdź, jak zmieniają się logi w następujących sytuacjach:</p>
+<ul><li>wciśnięcie przycisku <em>Home</em> i powrót do aplikacji (zwróć uwagę na <code>onRestart</code>),</li><li>wciśnięcie przycisku <em>Wstecz</em>,</li><li>obrót ekranu emulatora (aktywność jest niszczona i tworzona od nowa).</li></ul>
+<h3 is-upgraded>2 Tworzenie prostej klasy</h3>
+<p>Kliknij prawym przyciskiem myszy na nazwę pakietu w folderze <code>java+kotlin</code> i wybierz <strong>New -&gt; Kotlin Class/File</strong>. Wpisz nazwę: <code>Dice</code>.</p>
+<h4 is-upgraded>Dice.kt</h4>
+<pre><code class="language-kotlin">package com.mr.diceroller
+
+class Dice(private val numSides: Int = 6) {
+    // To jest definicja głównego konstruktora
+    // Domyślna wartość dla numSides to 6
+
+    // Publiczna funkcja zdefiniowana wewnątrz klasy.
+    // Zwraca losową liczbę całkowitą pomiędzy 1 a numSides.
+    fun roll(): Int {
+        return (1..numSides).random()
+    }
+}
+</code></pre>
+<p>Implementacja klasy jest prosta. Posiada pojedynczy konstruktor z jednym parametrem domyślnym, który ustala liczbę ścian kości. Pojedyncza funkcja należąca do tej klasy (<code>roll()</code>) generuje losową liczbę z zakresu od 1 do <code>numSides</code>.</p>
+<h3 is-upgraded>3 Obsługa kliknięć i modyfikowanie interfejsu</h3>
+<p>Wróć do <code>MainActivity.kt</code> i zmodyfikuj metodę <code>onCreate</code> (dodaj import <code>android.widget.Button</code>):</p>
+<h4 is-upgraded>MainActivity.kt</h4>
+<pre><code class="language-kotlin">override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    Log.i(localClassName, &quot;onCreate&quot;)
+    setContentView(R.layout.activity_main)
+
+    val button = findViewById&lt;Button&gt;(R.id.rollButton)
+
+    button.setOnClickListener {
+        rollDice()
+    }
+}
+</code></pre>
+<p>W kodzie powyżej utworzyliśmy zmienną (<code>val</code>) o nazwie <code>button</code>, która pozwoli nam uzyskać dostęp do przycisku z naszego układu. Widok (<code>View</code>) w układzie jest rozpoznawany po jego id, a połączenie zapewnia metoda <code>findViewById</code>. Następnie tworzymy procedurę obsługującą zdarzenie kliknięcia w przycisk, używając metody <code>setOnClickListener</code>. W ciele (lambda) tego nasłuchiwacza (tzw. listenera) wywołujemy metodę <code>rollDice()</code>.</p>
+<p>Metoda <code>rollDice()</code> jeszcze nie istnieje, więc użyj skrótu <code>Alt+Enter</code> na podświetlonym błędzie, by stworzyć nową funkcję:</p>
+<img src="img/lab1_23.png" alt="img\\lab1_23.png"  width="300.00" />
+<p>Następnie dodaj poniższe funkcje w <code>MainActivity</code> wraz z brakującymi importami (<code>Alt+Enter</code>):</p>
+<pre><code class="language-kotlin">import android.graphics.Color
+import android.widget.ImageView
+import android.widget.TextView
+</code></pre>
+<h4 is-upgraded>MainActivity.kt</h4>
+<pre><code class="language-kotlin">private fun rollDice() {
+    val dice = Dice() // to jest równoważne z Dice(6)
+    val diceRoll1 = dice.roll() // pierwszy rzut kością
+    val diceRoll2 = dice.roll() // drugi rzut kością
+
+    updateText(diceRoll1, diceRoll2) // aktualizuje widok tekstu wynikiem
+    updateImg(diceRoll1, diceRoll2) // aktualizuje widoki obrazków kości
+}
+
+private fun updateText(diceRoll1: Int, diceRoll2: Int) {
+    // Pobierz widok TextView z układu
+    val rollResultText = findViewById&lt;TextView&gt;(R.id.rollResultText)
+
+    // Ustaw tekst
+    rollResultText.text = &quot;Rolled: $diceRoll1 &amp; $diceRoll2&quot;
+
+    // Tworzenie koloru (RGB) dla tekstu
+    // Każdy składnik koloru może mieć wartość pomiędzy 0 a 255
+
+    // Składnik czerwony (losowa liczba od 0 do 255)
+    val red = (0..255).random()
+
+    // Składnik zielony (na podstawie sumy wartości z kości)
+    val green = (((diceRoll1 + diceRoll2) / 12.0) * 255).toInt()
+
+    // Składnik niebieski (na podstawie iloczynu wartości z kości)
+    val blue = (((diceRoll1 * diceRoll2) / 36.0) * 255).toInt()
+
+    // Ustaw wygenerowany kolor na tekst
+    rollResultText.setTextColor(Color.rgb(red, green, blue))
+    Log.i(localClassName, &quot;Text color: R:$red, G:$green, B:$blue&quot;)
+}
+
+private fun updateImg(diceRoll1: Int, diceRoll2: Int) {
+    // Pobierz ImageView z układu
+    val dice1Img = findViewById&lt;ImageView&gt;(R.id.dice1Img)
+    val dice2Img = findViewById&lt;ImageView&gt;(R.id.dice2Img)
+
+    // Zmień obraz bazując na wygenerowanej wartości, używając naszej funkcji pomocniczej
+    dice1Img.setImageResource(resolveDrawable(diceRoll1))
+    dice2Img.setImageResource(resolveDrawable(diceRoll2))
+}
+
+private fun resolveDrawable(diceValue: Int): Int {
+    // Zwróć id zasobu graficznego (drawable) w zależności od wartości kości
+    return when (diceValue) {
+        1 -&gt; R.drawable.dice_1
+        2 -&gt; R.drawable.dice_2
+        3 -&gt; R.drawable.dice_3
+        4 -&gt; R.drawable.dice_4
+        5 -&gt; R.drawable.dice_5
+        else -&gt; R.drawable.dice_6
+    }
+}
+</code></pre>
+<p>Zwróć uwagę, jak w <code>rollDice()</code> tworzymy obiekt klasy <code>Dice</code>, rzucamy dwukrotnie i zapisujemy wynik do zmiennych, które są dalej przekazywane do funkcji aktualizujących tekst i obrazki.</p>
+<p>Zbuduj i uruchom aplikację!</p>
+      </section>
+    
+      <section class="codelab-step" data-label="Debugowanie aplikacji" data-duration="10">
+        <h3 is-upgraded>1 &quot;Breakpointy&quot;</h3>
+<p>W pliku <code>MainActivity.kt</code> odnajdź linijkę:</p>
+<pre><code class="language-kotlin">rollResultText.setTextColor(Color.rgb(red, green, blue))
+</code></pre>
+<p>Kliknij w puste miejsce zaraz obok numeru linii (na marginesie). W ten sposób dodasz punkt wstrzymania (breakpoint - pojawi się czerwona kropka).</p>
+<img src="img/lab1_27.png" alt="img\\lab1_27.png"  width="500.00" />
+<p>Breakpointy są przydatne do debugowania i testowania aplikacji. Pozwalają one aplikacji zatrzymać się, gdy osiągnie ten konkretny punkt w kodzie.</p>
+<p>Uruchom aplikację w trybie debugowania, wciskając przycisk z ikoną robaka (Debug &#39;app&#39;, <code>Shift + F9</code>). Naciśnij przycisk rzutu w aplikacji - debugger powinien zatrzymać się na wyznaczonym breakpoincie. Możesz przeanalizować wartości zmiennych w oknie u dołu.</p>
+<img src="img/lab1_28.png" alt="img\\lab1_28.png"  width="720.00" />
+<h3 is-upgraded>2 Wywoływanie awarii aplikacji i analiza przyczyn z użyciem Logcat</h3>
+<p>Utwórz nowy plik layoutu klikając prawym przyciskiem myszy na folderze <code>layout</code> i wybierając <strong>New -&gt; Layout Resource File</strong>. Nadaj mu dowolną nazwę i kliknij OK. W nowym pliku zmień <code>id</code> głównego elementu <code>ConstraintLayout</code> na <code>crash_test</code>.</p>
+<p>Teraz celowo zepsujmy aplikację. Zmodyfikuj metodę <code>rollDice()</code> (dodaj import <code>android.view.View</code>):</p>
+<pre><code class="language-kotlin">private fun rollDice() {
+    val dice = Dice()
+    val diceRoll1 = dice.roll()
+    val diceRoll2 = dice.roll()
+
+    // Próbujemy pobrać widok &#39;crash_test&#39;, którego NIE MA w obecnie wyświetlanym układzie (activity_main)
+    val crash = findViewById&lt;View&gt;(R.id.crash_test)
+    val screen = crash.height // &lt;-- Tutaj wywołamy atrybut na obiekcie, który jest null!
+
+    updateText(diceRoll1, diceRoll2)
+    updateImg(diceRoll1, diceRoll2)
+}
+</code></pre>
+<p>Uruchom aplikację. Wyrzuci ona błąd i nieoczekiwanie zakończy działanie przy próbie rzutu kośćmi.</p>
+<p>Przejdź do zakładki <strong>Logcat</strong>, zmień poziom szczegółowości (Verbosity level) na <strong>Error</strong> i wpisz w polu wyszukiwania <code>MainActivity</code> (lub <code>level:error</code>). Znajdziesz stos wywołań błędu (stack trace).</p>
+<img src="img/lab1_32.png" alt="img\\lab1_32.png"  width="720.00" />
+<p>Z wiadomości możemy łatwo odnaleźć linię, która spowodowała crash (<code>NullPointerException</code>). W Kotlinie ten typ błędu (wywołanie metody na obiekcie, który nie istnieje) może być łatwo obsłużony poprzez <strong>operator bezpiecznego wywołania (safe call operator) <code>?</code></strong>.</p>
+<p>Dodaj operator <code>?</code> do linii wywołującej problem:</p>
+<pre><code class="language-kotlin">val screen = crash?.height
+</code></pre>
+<p>Uruchom aplikację ponownie i sprawdź, czy problem został rozwiązany. (Wartość <code>screen</code> po prostu przyjmie bezpiecznie wartość <code>null</code> zamiast powodować wyjątek).</p>
+      </section>
+    
+      <section class="codelab-step" data-label="Rozbudowa aplikacji" data-duration="45">
+        <p>W tej sekcji rozbudujemy aplikację. Zaimplementujemy grę pomiędzy dwoma graczami, polegającą na zdobyciu jak największej ilości punktów. Gra pozwala modyfikować liczbę kości oraz używać mechaniki zatrzymywania (&quot;hold&quot;) dla dowolnej kostki przed rzutem.</p>
+<aside class="warning"><p><strong>Nie kopiuj kodu bezmyślnie.</strong> W tej części dostajesz gotowy kod, ale celem nie jest jego przepisanie, tylko zrozumienie. Po każdym kroku znajdziesz sekcję <strong>Pytania do kodu</strong>.</p></aside>
+<h3 is-upgraded>1 Tworzenie dwóch nowych Aktywności</h3>
+<p>Wybierz z górnego menu <strong>File -&gt; New -&gt; Activity -&gt; Empty Views Activity</strong>. W oknie podaj nazwę pierwszej z nich: <code>MainActivityExtended</code>. Powtórz ten proces dla kolejnej aktywności o nazwie <code>SettingsActivity</code>.</p>
+<p>Zajrzyj do <code>AndroidManifest.xml</code> i zobacz zmiany (wszystkie aktywności zostały tam dopisane).</p>
+<!-- ZMIANA (3): ustawienie aktywności startowej -->
+<h4 is-upgraded>Ustawienie aktywności startowej</h4>
+<p>Aplikacja uruchamia aktywność oznaczoną w manifeście filtrem intencji <code>MAIN</code> + <code>LAUNCHER</code>. Obecnie jest to wciąż <code>MainActivity</code>, więc po uruchomieniu zobaczysz stary ekran. Aby uruchamiać nową grę, <strong>przenieś <code>intent-filter</code> z <code>MainActivity</code> do <code>MainActivityExtended</code></strong>:</p>
+<pre><code class="language-xml">&lt;activity
+    android:name=&quot;.MainActivity&quot;
+    android:exported=&quot;false&quot; /&gt;
+
+&lt;activity
+    android:name=&quot;.MainActivityExtended&quot;
+    android:exported=&quot;true&quot;&gt;
+    &lt;intent-filter&gt;
+        &lt;action android:name=&quot;android.intent.action.MAIN&quot; /&gt;
+        &lt;category android:name=&quot;android.intent.category.LAUNCHER&quot; /&gt;
+    &lt;/intent-filter&gt;
+&lt;/activity&gt;
+
+&lt;activity
+    android:name=&quot;.SettingsActivity&quot;
+    android:exported=&quot;false&quot; /&gt;
+</code></pre>
+<p>Atrybut <code>android:exported=&quot;true&quot;</code> jest wymagany dla aktywności z <code>intent-filter</code>, ponieważ uruchamia ją system. Pozostałe aktywności są wewnętrzne, więc mają <code>exported=&quot;false&quot;</code>.</p>
+<p>W dalszej części ćwiczenia pracujemy wyłącznie na <code>MainActivityExtended</code> i <code>SettingsActivity</code>. <code>MainActivity</code> zostaje w projekcie jako punkt odniesienia (wersja z poprzednich kroków).</p>
+<h4 is-upgraded>Pytania do kodu</h4>
+<ol><li>Po czym system rozpoznaje aktywność startową? Za co odpowiada akcja <code>MAIN</code>, a za co kategoria <code>LAUNCHER</code>?</li><li>Co zobaczysz w menu aplikacji na urządzeniu, jeśli <code>intent-filter</code> zostanie w <code>MainActivity</code> <strong>i</strong> znajdzie się w <code>MainActivityExtended</code>?</li><li>Usuń <code>intent-filter</code> ze wszystkich aktywności i spróbuj uruchomić aplikację. Jaki komunikat zwraca Android Studio?</li><li>Dlaczego <code>MainActivityExtended</code> ma <code>exported=&quot;true&quot;</code>, a <code>SettingsActivity</code> <code>exported=&quot;false&quot;</code>?</li></ol>
+<h3 is-upgraded>2 Dodawanie View Binding (Wiązanie widoków)</h3>
+<p>W rozszerzeniu aplikacji wykorzystamy mechanizm View Binding. Pozwala ono na prostsze powiązanie kodu z układem (layoutem) z użyciem automatycznie generowanej klasy wiązania (binding class). View binding jest obecnie preferowanym sposobem na uzyskiwanie dostępu do widoków XML w kodzie i zastępuje żmudne używanie metody <code>findViewById</code>. //TODO Przejdź do <code>build.gradle.kts (Module :app)</code> i dodaj <code>viewBinding</code> do sekcji <code>android</code>:</p>
+<h4 is-upgraded>build.gradle.kts</h4>
+<pre><code class="language-kotlin">android {
+    namespace = &quot;com.mr.diceroller&quot;
+    compileSdk = 34
+    // ...
+    buildFeatures {
+        viewBinding = true
+    }
+}
+</code></pre>
+<p>Zsynchronizuj projekt.</p>
+<h4 is-upgraded>Pytania do kodu</h4>
+<ol><li>Jak nazywa się klasa wiązania wygenerowana dla <code>activity_settings.xml</code>? A jak nazwałaby się dla pliku <code>item_dice_row.xml</code>? Jaka jest reguła?</li><li>W <code>activity_main_extended.xml</code> zmieniasz <code>id</code> przycisku z <code>rollButton</code> na <code>rollBtn</code>. Co się stanie z kodem używającym <code>binding.rollButton</code>? A z kodem używającym <code>findViewById&lt;Button&gt;(R.id.rollButton)</code> (zwróć uwagę, że <code>activity_main.xml</code> nadal ma przycisk o takim id)? Kiedy dowiesz się o błędzie w każdym z przypadków?</li><li>Co zwraca <code>binding.root</code> i dlaczego przekazujemy to do <code>setContentView()</code>?</li></ol>
+<h3 is-upgraded>3 Przygotowanie układów (layouts) dla nowych aktywności</h3>
+<p><strong>Dla SettingsActivity (<code>activity_settings.xml</code>)</strong> utwórz układ posiadający:</p>
+<ul><li>Element typu <code>Switch</code> - służący do przełączania funkcji zatrzymania kości (np. <code>id=&quot;@+id/enableHoldSwitch&quot;</code>).</li><li>Element typu <code>Spinner</code> - służący do wyboru ilości kości (np. <code>id=&quot;@+id/numDiceSpinner&quot;</code>).</li><li>Element typu <code>Button</code> - przycisk potwierdzenia (np. <code>id=&quot;@+id/confirmButton&quot;</code>).</li><li><code>TextView</code> - etykieta dla wyboru ilości kości.</li></ul>
+<img src="img/lab1_37.png" alt="img\\lab1_37.png"  width="720.00" />
+<p>Do działania Spinnera potrzebujemy zdefiniować tablicę ciągów. W pliku <code>strings.xml</code> dodaj:</p>
+<pre><code class="language-xml">&lt;string-array name=&quot;num_dice_spinner_entries&quot;&gt;
+    &lt;item&gt;2&lt;/item&gt;
+    &lt;item&gt;3&lt;/item&gt;
+    &lt;item&gt;4&lt;/item&gt;
+    &lt;item&gt;5&lt;/item&gt;
+&lt;/string-array&gt;
+</code></pre>
+<p>Przypisz te wpisy do Spinnera w <code>activity_settings.xml</code> używając atrybutu <code>android:entries=&quot;@array/num_dice_spinner_entries&quot;</code>.</p>
+<p><strong>Dla MainActivityExtended (<code>activity_main_extended.xml</code>)</strong> przygotuj:</p>
+<ul><li>Dwa obiekty <code>TextView</code> - do wyświetlania obecnego gracza (<code>id=&quot;@+id/playerLabel&quot;</code>) oraz wyniku rzutu (<code>id=&quot;@+id/rollResultText&quot;</code>).</li><li>Jeden <code>Button</code> - do rzucania (<code>id=&quot;@+id/rollButton&quot;</code>).</li><li>Pięć obiektów <code>ImageView</code> - do wyświetlania kości (<code>dice1Img</code> do <code>dice5Img</code>). Ustaw im atrybut <code>android:tintMode</code> na &quot;multiply&quot;.</li></ul>
+<img src="img/lab1_38.png" alt="img\\lab1_38.png"  width="720.00" />
+<h4 is-upgraded>Pytania do kodu (krok 3)</h4>
+<ol><li><code>SettingsActivity</code> ustawia Spinner przez <code>setSelection(numDice - 2)</code>. Jaka <em>niepisana umowa</em> łączy tę linię z <code>string-array</code> w <code>strings.xml</code>? Co się stanie, jeśli dodasz do tablicy na początku pozycję <code>1</code>?</li><li>★ Kostki mają <code>tintMode=&quot;multiply&quot;</code>, a stan „bez podświetlenia&quot; to kolor <code>white</code>. Jaki kolor będzie miał biały piksel obrazka po pomnożeniu przez <code>white</code>, a jaki przez <code>yellow</code> (R=255, G=255, B=0)? Co stanie się z czarnymi oczkami kostki i dlaczego <code>multiply</code> jest tu lepszy niż zwykłe nałożenie koloru?</li></ol>
+<h3 is-upgraded>4 Dodawanie Menu</h3>
+<p>Menu zostanie użyte do uruchamiania <code>SettingsActivity</code>. Utwórz katalog zasobów typu Menu (<code>res -&gt; New -&gt; Android Resource Directory</code>, typ: <em>menu</em>), a w nim plik <code>menu.xml</code> z jednym elementem opcji (Settings). Zobacz jak to zrobić na nagraniu:</p>
+<p><a href="https://putpoznanpl-my.sharepoint.com/:v:/g/personal/marcin_rodziewicz_put_poznan_pl/EQRR9asTx41NqrAid_po488B-AzovNR9XEWPFuLt1-J7Cg?e=Tmrk0h" target="_blank">Dodawanie menu</a></p>
+<p>W kodzie <code>MainActivityExtended.kt</code>:</p>
+<pre><code class="language-kotlin">override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    // Utworzenie menu za pomocą menuInflater i zasobu R.menu.menu
+    val inflater: MenuInflater = menuInflater
+    inflater.inflate(R.menu.menu, menu)
+    return super.onCreateOptionsMenu(menu)
+}
+
+override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    // Obsługa wyboru elementu z menu
+    when (item.itemId) {
+        R.id.settings -&gt; startSettingsActivity()
+    }
+    return super.onOptionsItemSelected(item)
+}
+</code></pre>
+<p>Aby wyświetlić menu, musimy przesłonić metodę <code>onCreateOptionsMenu</code> i wskazać docelowy plik zasobów. Wybory użytkownika wyłapujemy, nadpisując <code>onOptionsItemSelected</code>.</p>
+<h4 is-upgraded>Pytania do kodu (krok 4)</h4>
+<ol><li>Co oznacza zwracana wartość <code>Boolean</code> w <code>onCreateOptionsMenu</code> i w <code>onOptionsItemSelected</code>? Co zwraca w tych przypadkach implementacja z klasy nadrzędnej?</li><li>W <code>menu.xml</code> nadałeś elementowi <code>id</code> <code>action_settings</code>, a w kodzie jest <code>R.id.settings</code>. Co się stanie i kiedy?</li><li>Dlaczego menu tworzymy w metodzie przesłanianej (<code>onCreateOptionsMenu</code>), a nie bezpośrednio w <code>onCreate</code>? Kto decyduje, kiedy ta metoda zostanie wywołana?</li><li>(po zakończeniu kroku 7) Dodaj do menu drugą pozycję „Reset game&quot;, która wywołuje <code>resetGame()</code>.</li></ol>
+<h3 is-upgraded>5 Implementacja nawigacji i przesyłania danych (Intents)</h3>
+<p>Dodajmy do <code>MainActivityExtended.kt</code> deklarację mechanizmu View Binding i podstawowych zmiennych.</p>
+<!-- ZMIANA (8): jeden zestaw importów dla całego pliku, w kodzie krótkie nazwy -->
+<aside class="special"><p>Wskazówka: Gdyby w pliku aktywności niektóre elementy były podświetlone na czerwono, to najpierw sprawdź czy problemu nie można rozwiązać przez import zależności</p></aside>
+<h4 is-upgraded>MainActivityExtended.kt</h4>
+<pre><code class="language-kotlin">private lateinit var binding: ActivityMainExtendedBinding // Połączenie z układem
+
+private var numDice: Int = 2 // Ilość kości w grze
+private var isHoldEnabled: Boolean = true // Czy gracz może wstrzymywać kości?
+
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+
+    // Powołanie do życia układu graficznego.
+    // Dzięki View Binding nie ma już potrzeby wywoływania findViewById.
+    binding = ActivityMainExtendedBinding.inflate(layoutInflater)
+    setContentView(binding.root)
+}
+</code></pre>
+<p>View binding zastępuje potrzebę używania <code>findViewById</code>. Poprzez utworzenie zmiennej typu binding możemy odnosić się do widoków w układzie wywołując po prostu <code>binding.idWidoku</code>. Zauważ użycie słowa kluczowego <code>lateinit</code> - mówi to kompilatorowi, że zmienna będzie zainicjalizowana później w kodzie (w <code>onCreate</code>).</p>
+<p>Zaimplementuj uruchamianie ustawień:</p>
+<pre><code class="language-kotlin">private fun startSettingsActivity() {
+    // Utworzenie Intencji jawnej w celu wystartowania SettingsActivity
+    val intent = Intent(this, SettingsActivity::class.java).apply {
+        // Dodaj wartość typu Int oraz klucz przechowywany w resources
+        putExtra(getString(R.string.num_dice_key), numDice)
+        // Dodaj wartość typu Boolean
+        putExtra(getString(R.string.hold_enable_key), isHoldEnabled)
+        // Wartości te (tzw. Extras) będą mogły zostać odzyskane z użyciem kluczy
+    }
+    // Wystartowanie aktywności z pomocą zmiennej Launchera (patrz niżej)
+    launchSettingsActivity.launch(intent)
+}
+</code></pre>
+<p>Uruchamiamy <code>SettingsActivity</code> tworząc jawną Intencję (explicit Intent). Przekazujemy do niej parametry startowe wywołując <code>putExtra()</code>. Utwórz brakujące wpisy kluczy w pliku <code>strings.xml</code>.</p>
+<p>Zarejestruj wywołanie zwrotne (callback) dla powracającego rezultatu z aktywności ustawień:</p>
+<pre><code class="language-kotlin">// Rejestracja callbacku dla wyniku z SettingsActivity.
+// Kod ten zostanie wywołany, gdy wrócimy z widoku ustawień.
+private val launchSettingsActivity =
+    registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result -&gt;
+        if (result.resultCode == RESULT_OK) {
+            // Wykonaj operacje tylko, jeśli rezulat jest pozytywny (RESULT_OK)
+            // Pobierz dane z intencji result.data (jeśli nie jest nullem używamy .let)
+            result.data?.let { data -&gt;
+                numDice = data.getIntExtra(getString(R.string.num_dice_key), 2)
+                isHoldEnabled = data.getBooleanExtra(getString(R.string.hold_enable_key), true)
+
+                // Zastosuj ustawienia (applySettings zresetuje też grę,
+                // dzięki czemu każda zmiana ustawień rozpoczyna rozgrywkę od nowa)
+                applySettings()
+
+                // Pokaż pop-up (Snackbar) z potwierdzeniem
+                Snackbar.make(
+                    binding.root,
+                    &quot;Current settings: numDice: $numDice, isHoldEnabled: $isHoldEnabled&quot;,
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+</code></pre>
+<p>Zmienna <code>launchSettingsActivity</code> zostaje użyta do uruchomienia ustawień oraz nasłuchiwania na odesłany po jej zamknięciu rezultat. Mechanizm <code>registerForActivityResult</code> stanowi część nowego Activity Result API. Ignoruj na razie ostrzeżenia o brakujących funkcjach <code>applySettings</code> - dopiszemy je później.</p>
+<h4 is-upgraded>Pytania do kodu (krok 5)</h4>
+<ol><li>Czym różni się intencja jawna od niejawnej? Dlaczego do uruchomienia <code>SettingsActivity</code> używamy jawnej?</li><li>Klucze (<code>num_dice_key</code>, <code>hold_enable_key</code>) trzymamy w <code>strings.xml</code>. Co się stanie, jeśli w <code>SettingsActivity</code> pomylisz się w kluczu? Czy dostaniesz błąd kompilacji, wyjątek, czy nic? A co, jeśli pomylisz nazwę zasobu <code>R.string.…</code>?</li><li>Użytkownik wchodzi w ustawienia i naciska systemowy przycisk <em>Wstecz</em>. Jaki <code>resultCode</code> trafi do callbacku? Co zrobi callback? Czy pojawi się <code>Snackbar</code>?</li><li>★ Dlaczego <code>launchSettingsActivity</code> jest polem klasy inicjalizowanym przy tworzeniu obiektu, a nie tworzymy go w <code>startSettingsActivity()</code>? Co by się stało przy rejestracji w obsłudze kliknięcia?</li><li>★ Lambda w <code>registerForActivityResult</code> odwołuje się do <code>binding</code>, które jest <code>lateinit</code> i w chwili tworzenia pola jeszcze niezainicjalizowane. Dlaczego aplikacja się nie wysypuje?</li><li>Co oznaczają liczby <code>2</code> i <code>true</code> w <code>getIntExtra(..., 2)</code> oraz <code>getBooleanExtra(..., true)</code>? Kiedy zostaną użyte?</li><li>W <code>startSettingsActivity()</code> zmień <code>putExtra(..., numDice)</code> na <code>putExtra(..., numDice.toString())</code>, nie zmieniając <code>SettingsActivity</code>. Co pokaże Spinner? Co znajdziesz w Logcat?</li></ol>
+<h3 is-upgraded>6 Aktywność Ustawień (SettingsActivity.kt)</h3>
+<p>W tym kodzie pobieramy intencję przesłaną z <code>MainActivityExtended</code>, nadpisujemy UI odczytanymi zmiennymi i przypisujemy akcję dla przycisku, która zbuduje intencję powrotną:</p>
+<h4 is-upgraded>SettingsActivity.kt</h4>
+<pre><code class="language-kotlin">package com.mr.diceroller
+
+import android.content.Intent
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import com.mr.diceroller.databinding.ActivitySettingsBinding
+
+class SettingsActivity : AppCompatActivity() {
+    private lateinit var binding: ActivitySettingsBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Inicjalizacja View Binding
+        binding = ActivitySettingsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // Odzyskanie ustawień przesłanych przez Intent
+        val numDice = intent.getIntExtra(getString(R.string.num_dice_key), 2)
+        val isHoldEnabled = intent.getBooleanExtra(getString(R.string.hold_enable_key), true)
+
+        // Odwzorowanie ustawień na interfejs
+        binding.enableHoldSwitch.isChecked = isHoldEnabled
+
+        // Założenie, że gramy od 2 do 5 kośćmi. Ustawia selekcję w Spinnerze.
+        if (numDice in 2..5) {
+            binding.numDiceSpinner.setSelection(numDice - 2)
+        }
+
+        binding.confirmButton.setOnClickListener {
+            // Pobranie danych ze Spinnera i zamiana na int
+            val spinnerSelection = binding.numDiceSpinner.selectedItem.toString().toInt()
+            val holdEnable = binding.enableHoldSwitch.isChecked
+
+            // Stworzenie pustej intencji przechowującej tylko wynik działania
+            val result = Intent().apply {
+                putExtra(getString(R.string.num_dice_key), spinnerSelection)
+                putExtra(getString(R.string.hold_enable_key), holdEnable)
+            }
+
+            // Ustawienie kodu wyniku (RESULT_OK) z intencją zawierającą dane
+            setResult(RESULT_OK, result)
+            // Zamknięcie aktywności i powrót do poprzedniej (MainActivityExtended)
+            finish()
+        }
+    }
+}
+</code></pre>
+<h4 is-upgraded>Pytania do kodu (krok 6)</h4>
+<ol><li>Skąd w <code>SettingsActivity</code> bierze się zmienna <code>intent</code>? Którą intencję reprezentuje?</li><li><strong>[Przewidź → Eksperyment]</strong> Usuń z obsługi przycisku wywołanie <code>finish()</code>. Co zobaczy użytkownik po kliknięciu „Confirm&quot;? Kiedy (i czy w ogóle) callback w <code>MainActivityExtended</code> otrzyma wynik?</li><li><strong>[Przewidź → Eksperyment]</strong> Przywróć <code>finish()</code>, ale usuń <code>setResult(...)</code>. Jak zachowa się aplikacja i dlaczego?</li><li>★ Czemu wracamy z ustawień przez <code>setResult</code> + <code>finish()</code>, a nie przez <code>startActivity(Intent(this, MainActivityExtended::class.java))</code>? Opisz skutki dla stosu aktywności (back stack) i dla stanu rozpoczętej gry.</li><li>Dlaczego przed <code>.toInt()</code> jest <code>.toString()</code> w <code>binding.numDiceSpinner.selectedItem.toString().toInt()</code>?</li></ol>
+<h3 is-upgraded>7 Pełna logika nowej gry (<code>MainActivityExtended.kt</code>)</h3>
+<p>Czas na dopisanie mechaniki gry do <code>MainActivityExtended</code>.</p>
+<!-- ZMIANA (5): osobna zmienna stanu zamiast porównywania tekstu przycisku -->
+<p>Stan gry przechowujemy w osobnej zmiennej (<code>phase</code>), a <strong>nie</strong> w tekście przycisku. Tekst jest tylko prezentacją stanu. Gdybyśmy rozpoznawali stan przez porównanie napisu, zmiana lub tłumaczenie tekstu zepsułoby logikę gry. Gra może znajdować się w jednej z trzech faz:</p>
+<table><thead><tr><th>Faza</th><th>Znaczenie</th><th>Tekst przycisku</th></tr></thead><tbody><tr><td><code>WAITING</code></td><td>Oczekiwanie na start tury (gracza 1 lub 2)</td><td><code>Start</code> / <code>Player 2 start</code></td></tr><tr><td><code>ROLLING</code></td><td>Trwa tura, można rzucać kośćmi</td><td><code>Roll</code></td></tr><tr><td><code>FINISHED</code></td><td>Koniec gry</td><td>przycisk nieaktywny</td></tr></tbody></table>
+<p>Najpierw dodaj zmienne pomocnicze:</p>
+<pre><code class="language-kotlin">// Fazy gry (stan przechowujemy w zmiennej, a nie w tekście przycisku)
+private enum class GamePhase { WAITING, ROLLING, FINISHED }
+private var phase = GamePhase.WAITING
+
+// Tablice pozwalające nam na łatwą manipulację wieloma ImageView za pomocą pętli
+private val diceImgArray by lazy{ arrayOf(binding.dice1Img, binding.dice2Img, binding.dice3Img, binding.dice4Img, binding.dice5Img)}
+private val diceStatesArray = arrayOf(false, false, false, false, false) // Informacje czy dana kość jest &quot;zatrzymana&quot;
+private val diceValuesArray = arrayOf(1, 1, 1, 1, 1) // Obecnie wylosowane liczby
+
+private var currentPlayer = 0 // Indeks obecnego gracza (0 lub 1). Użytkownikowi pokazujemy numer o 1 większy
+private val playerScores = arrayOf(0, 0)
+private var rollCount = 0 // Ilość wykonanych rzutów (tura się kończy gdy rollCount == numDice)
+</code></pre>
+<p>Dodaj do <code>strings.xml</code> zasoby tekstowe używane w poniższym kodzie (nazwy odpowiadają faktycznej treści napisów):</p>
+<pre><code class="language-xml">&lt;string name=&quot;button_start&quot;&gt;Start&lt;/string&gt;
+&lt;string name=&quot;button_roll&quot;&gt;Roll&lt;/string&gt;
+&lt;string name=&quot;button_second_start&quot;&gt;Player 2 start&lt;/string&gt;
+&lt;string name=&quot;click_start&quot;&gt;Click Start to begin&lt;/string&gt;
+&lt;string name=&quot;click_roll&quot;&gt;Click Roll to roll the dice&lt;/string&gt;
+&lt;string name=&quot;rolled_msg&quot;&gt;Rolled: &lt;/string&gt;
+&lt;string name=&quot;player_label_format&quot;&gt;Player %1$d&lt;/string&gt;
+</code></pre>
+<p>Zaimplementuj metody wyłapywania kliknięć z <code>onCreate</code>:</p>
+<pre><code class="language-kotlin">override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    binding = ActivityMainExtendedBinding.inflate(layoutInflater)
+    setContentView(binding.root)
+
+    // Nasłuchiwacze kostek rejestrujemy tylko raz.
+    // To, czy kostki reagują na kliknięcia, kontroluje updateDiceClickable()
+    setDiceClick()
+    applySettings()
+
+    // Nasłuchiwanie na przycisk rzucania - zachowanie zależy od fazy gry
+    binding.rollButton.setOnClickListener {
+        when (phase) {
+            GamePhase.WAITING -&gt; startTurn()
+            GamePhase.ROLLING -&gt; rollDices()
+            GamePhase.FINISHED -&gt; Unit // przycisk jest wtedy nieaktywny
+        }
+    }
+}
+</code></pre>
+<!-- ZMIANA (9): spójność nasłuchiwaczy z isHoldEnabled -->
+<aside class="warning"><p><strong>Kolejność ma znaczenie:</strong> wywołanie <code>setOnClickListener</code> automatycznie ustawia <code>isClickable = true</code>. Dlatego <code>setDiceClick()</code> wywołujemy <strong>przed</strong> <code>applySettings()</code>. Dopiero <code>applySettings()</code> (przez <code>updateDiceClickable()</code>) decyduje, czy kostki mogą reagować na kliknięcia.</p></aside>
+<p>Dopisz metody zarządzające widokami i przebiegiem tury:</p>
+<pre><code class="language-kotlin">private fun applySettings() {
+    resetGame() // każda zmiana ustawień zaczyna grę od nowa
+
+    // Chowanie nieużywanych kości
+    for (num in 1..5) {
+        // View.GONE chowa element na dobre (przestaje zajmować miejsce)
+        diceImgArray[num - 1].visibility = if (num &lt;= numDice) View.VISIBLE else View.GONE
+    }
+}
+
+private fun resetGame() {
+    currentPlayer = 0
+    playerScores[0] = 0
+    playerScores[1] = 0
+    rollCount = 0
+    phase = GamePhase.WAITING
+    binding.rollResultText.text = getString(R.string.click_start)
+    binding.playerLabel.visibility = View.INVISIBLE
+    binding.rollButton.text = getString(R.string.button_start)
+    binding.rollButton.isEnabled = true
+    resetTurn()
+    updateDiceClickable()
+}
+
+private fun startTurn() {
+    phase = GamePhase.ROLLING
+    resetTurn() // wyzerowanie kości i blokad &quot;hold&quot; na początku tury każdego gracza
+    binding.rollButton.text = getString(R.string.button_roll)
+    binding.playerLabel.visibility = View.VISIBLE
+    binding.rollResultText.text = getString(R.string.click_roll)
+    updateDiceClickable()
+}
+
+private fun resetTurn() {
+    for (num in 0..4) {
+        diceValuesArray[num] = 1 // reset wartości
+        diceStatesArray[num] = false // ściągnięcie blokad &quot;hold&quot;
+        diceImgArray[num].let {
+            changeDiceTint(it, false)
+            it.setImageResource(resolveDrawable(1))
+        }
+    }
+    // currentPlayer liczymy od 0, ale użytkownik widzi &quot;Player 1&quot; i &quot;Player 2&quot;
+    binding.playerLabel.text = getString(R.string.player_label_format, currentPlayer + 1)
+}
+
+// Skopiuj tu też starą funkcję resolveDrawable
+private fun resolveDrawable(diceValue: Int): Int {
+    return when (diceValue) {
+        1 -&gt; R.drawable.dice_1
+        2 -&gt; R.drawable.dice_2
+        3 -&gt; R.drawable.dice_3
+        4 -&gt; R.drawable.dice_4
+        5 -&gt; R.drawable.dice_5
+        else -&gt; R.drawable.dice_6
+    }
+}
+
+private fun changeDiceTint(img: ImageView, highlight: Boolean) {
+    // Podświetlenie na żółto zaznaczonych kostek (potrzebny zdefiniowany kolor yellow i white w xml)
+    img.imageTintList = ColorStateList.valueOf(
+        getColor(if (highlight) R.color.yellow else R.color.white)
+    )
+}
+</code></pre>
+<p>Dodaj logikę trzymania kości i ich rzutów:</p>
+<pre><code class="language-kotlin">private fun setDiceClick() {
+    for ((diceIdx, diceImg) in diceImgArray.withIndex()) {
+        diceImg.setOnClickListener {
+            // Zamiana (toggle) stanu blokady po kliknięciu
+            diceStatesArray[diceIdx] = !diceStatesArray[diceIdx]
+            changeDiceTint(diceImg, diceStatesArray[diceIdx])
+        }
+    }
+}
+
+// Jedno miejsce decydujące, czy kostki reagują na kliknięcia.
+// Zatrzymywać kości można tylko wtedy, gdy:
+// - funkcja &quot;hold&quot; jest włączona w ustawieniach,
+// - trwa tura (faza ROLLING),
+// - kości zostały już rzucone przynajmniej raz (rollCount &gt; 0).
+private fun updateDiceClickable() {
+    val canHold = isHoldEnabled &amp;&amp; phase == GamePhase.ROLLING &amp;&amp; rollCount &gt; 0
+    for ((idx, diceImg) in diceImgArray.withIndex()) {
+        diceImg.isClickable = canHold &amp;&amp; idx &lt; numDice
+        diceImg.isFocusable = diceImg.isClickable
+    }
+}
+
+private fun rollDices() {
+    val dice = Dice()
+    for (i in 0 until numDice) {
+        if (!diceStatesArray[i]) { // Rzucamy tylko niezablokowanymi kośćmi
+            diceValuesArray[i] = dice.roll()
+        }
+    }
+    updateTextAndImages()
+    rollCount += 1
+
+    if (rollCount == numDice) {
+        endTurn()
+    } else {
+        updateDiceClickable() // po pierwszym rzucie można już zatrzymywać kości
+    }
+}
+
+private fun endTurn() {
+    if (currentPlayer == 1) { // Koniec gry
+        endGame()
+    } else {
+        currentPlayer = 1
+        rollCount = 0
+        phase = GamePhase.WAITING
+        binding.rollButton.text = getString(R.string.button_second_start)
+        updateDiceClickable()
+    }
+}
+
+private fun updateTextAndImages() {
+    val rolledText = StringBuilder(getString(R.string.rolled_msg))
+    var sum = 0
+    for (i in 0 until numDice) {
+        val rollValue = diceValuesArray[i]
+        sum += rollValue
+        rolledText.append(&quot;$rollValue&quot;)
+        if (i != numDice - 1) rolledText.append(&quot;, &quot;) // Przecinki między wynikami
+
+        diceImgArray[i].setImageResource(resolveDrawable(rollValue))
+    }
+    playerScores[currentPlayer] = sum
+    rolledText.append(&quot;\nSum: $sum&quot;)
+    binding.rollResultText.text = rolledText.toString()
+}
+
+private fun endGame() {
+    phase = GamePhase.FINISHED
+    binding.rollButton.isEnabled = false
+    binding.playerLabel.visibility = View.INVISIBLE
+    updateDiceClickable()
+
+    // Oblicz zwycięzcę
+    val winner = when {
+        playerScores[0] == playerScores[1] -&gt; -1 // Remis
+        playerScores[0] &gt; playerScores[1] -&gt; 0   // Wygrywa Gracz 1 (indeks 0)
+        else -&gt; 1                                // Wygrywa Gracz 2 (indeks 1)
+    }
+
+    // Użytkownik widzi numery graczy od 1, więc do indeksu dodajemy 1
+    val message = if (winner != -1) {
+        &quot;Player ${winner + 1} wins with ${playerScores[winner]} points&quot;
+    } else {
+        &quot;Draw with ${playerScores[0]} points&quot;
+    }
+
+    // Wyświetlenie wyniku w interaktywnym pasku Snackbar (z opcją zagrania ponownie)
+    Snackbar.make(
+        binding.root, message, Snackbar.LENGTH_INDEFINITE
+    ).setAction(&quot;Start over&quot;) {
+        resetGame() // przywraca też aktywny przycisk
+    }.show()
+}
+</code></pre>
+<p>Uruchom i przetestuj całą aplikację! Sprawdź w szczególności:</p>
+<ul><li>czy kostki reagują na kliknięcia dopiero po pierwszym rzucie w turze (i przestają reagować po jej zakończeniu),</li><li>czy po wyłączeniu opcji &quot;hold&quot; w ustawieniach kostki nie dają się zatrzymywać, a po ponownym włączeniu znów działają,</li><li>czy mechanika &quot;hold&quot; działa tak samo w turze obu graczy i po rozpoczęciu gry od nowa (<code>Start over</code>).</li></ul>
+<h4 is-upgraded>Pytania do kodu (krok 7)</h4>
+<p><strong>A. Stan i struktura</strong></p>
+<ol><li><code>diceImgArray</code> jest zadeklarowane z <code>by lazy</code>. Co by się stało, gdybyś zapisał je jako zwykłe <code>private val diceImgArray = arrayOf(binding.dice1Img, ...)</code>? W którym momencie i jaki błąd by wystąpił? Dlaczego <code>lazy</code> to naprawia?</li><li>Fazę gry trzyma <code>enum GamePhase</code>, a nie tekst przycisku. Podaj dwie sytuacje, w których wersja oparta na porównywaniu tekstu przycisku przestałaby działać poprawnie.</li><li>★ Po co w <code>when (phase)</code> jest gałąź <code>GamePhase.FINISHED -&gt; Unit</code>, skoro „nic nie robi&quot;? Co zrobi kompilator, jeśli ją usuniesz?</li><li>Dlaczego <code>currentPlayer</code> liczymy od 0, a użytkownikowi pokazujemy <code>currentPlayer + 1</code>? W których miejscach kodu ta różnica ma znaczenie?</li></ol>
+<p><strong>B. Śledzenie przebiegu gry</strong></p>
+<ol start="5"><li>Dla <code>numDice = 2</code> uzupełnij tabelę po każdym kliknięciu przycisku (od stanu początkowego do końca gry), zanim uruchomisz aplikację. Potem zweryfikuj ją w debuggerze (breakpoint w <code>rollDices()</code> i <code>startTurn()</code>).</li></ol>
+<table><thead><tr><th>Klik</th><th>Wywołana funkcja</th><th><code>phase</code></th><th><code>currentPlayer</code></th><th><code>rollCount</code></th><th>Tekst przycisku</th></tr></thead><tbody><tr><td>(start)</td><td>–</td><td></td><td></td><td></td><td></td></tr><tr><td>1</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>2</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>3</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>4</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>5</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>6</td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table>
+<ol start="6"><li>Ile rzutów ma gracz w jednej turze przy <code>numDice = 4</code>? W której linii to ustalono? Czy to dobra zasada gry i jak ją zmienić, żeby liczba rzutów była niezależna od liczby kości?</li><li>★ Gdzie obliczany jest wynik gracza (<code>playerScores</code>) i jaką zasadę punktacji to oznacza? Nazwa funkcji <code>updateTextAndImages()</code> sugeruje, że zajmuje się tylko widokiem. Co jest nie tak z takim układem odpowiedzialności i jak byś to uporządkował?</li></ol>
+<p><strong>C. Mechanika „hold&quot;</strong></p>
+<ol start="8"><li><code>updateDiceClickable()</code> ma trzy warunki: <code>isHoldEnabled</code>, <code>phase == ROLLING</code>, <code>rollCount &gt; 0</code>. Dla każdego z nich opisz, co złego mogłoby się stać, gdyby go zabrakło (zwróć uwagę, jaką wartość mają kości po <code>resetTurn()</code>).</li><li><strong>[Przewidź → Eksperyment]</strong> Zamień kolejność wywołań w <code>onCreate</code>: najpierw <code>applySettings()</code>, potem <code>setDiceClick()</code>. Co zmieni się w zachowaniu aplikacji tuż po uruchomieniu (zanim klikniesz „Start&quot;)? Dlaczego? Co „naprawia&quot; sytuację po pierwszym kliknięciu przycisku?</li><li>W <code>setDiceClick()</code> każda kostka zmienia stan <em>własnego</em> elementu <code>diceStatesArray</code>. Jak lambda „pamięta&quot; indeks <code>diceIdx</code>?</li><li>Nieużywane kości chowamy przez <code>View.GONE</code>. Co by się zmieniło przy <code>View.INVISIBLE</code>?</li></ol>
+<p><strong>D. Szukanie błędów</strong></p>
+<ol start="12"><li>★ Ktoś zmienił w <code>rollDices()</code> pętlę z <code>for (i in 0 until numDice)</code> na <code>for (i in 0..numDice)</code>. Przy jakiej liczbie kości aplikacja się zawiesi i z jakim wyjątkiem? Czy przy <code>numDice = 2</code> widać jakikolwiek błąd? Co z tego wynika dla testowania?</li><li>W <code>rollDices()</code> warunek <code>if (!diceStatesArray[i])</code> zastąpiono przez <code>if (diceStatesArray[i])</code>. Opisz, jak aplikacja będzie się zachowywać.</li><li>Z <code>startTurn()</code> usunięto wywołanie <code>resetTurn()</code>. Wymień co najmniej trzy widoczne skutki w turze drugiego gracza.</li></ol>
+<p><strong>E. Cykl życia</strong></p>
+<ol start="15"><li>★ W trakcie gry (po pierwszym rzucie drugiego gracza) obróć emulator. Które zmienne zostały utracone? Co dzieje się z ustawieniami (<code>numDice</code>, <code>isHoldEnabled</code>)? Jakie dane i w jaki sposób należałoby zapisać w <code>onSaveInstanceState</code>?</li><li>W <code>endGame()</code> używamy <code>Snackbar.LENGTH_INDEFINITE</code>, a w callbacku ustawień <code>LENGTH_SHORT</code>. Dlaczego? Co by się stało z grą po jej zakończeniu, gdyby w <code>endGame()</code> użyć <code>LENGTH_SHORT</code>?</li></ol>
+<h4 is-upgraded>Zadania rozszerzające [Zmień kod]</h4>
+<ul><li><strong>Z1.</strong> Zmień zasady tak, aby wygrywał gracz z <strong>mniejszą</strong> sumą. Wskaż wszystkie miejsca w kodzie, które trzeba zmienić (nie tylko komunikat).</li><li><strong>Z2.</strong> ★ Dodaj <strong>trzeciego gracza</strong>. Zanim zaczniesz, wypisz wszystkie miejsca w kodzie, w których „na sztywno&quot; zakładamy dwóch graczy (tablice, warunki, wyliczanie zwycięzcy, etykiety). Potem zaimplementuj zmianę.</li><li><strong>Z3.</strong> Dodaj w ustawieniach <strong>trzecią opcję: liczbę rzutów w turze</strong> (np. Spinner 1–5). Zaprezentuj przepływ danych: <code>MainActivityExtended</code> → Intent (extras) → <code>SettingsActivity</code> → wynik → callback → zmienna używana w <code>rollDices()</code>.</li><li><strong>Z4.</strong> ★ Zaimplementuj <strong>zapis stanu przy obrocie ekranu</strong> (<code>onSaveInstanceState</code> + odczyt w <code>onCreate</code>), tak aby po obrocie gra toczyła się dalej, łącznie z ustawieniami i zaznaczonymi kostkami.</li><li><strong>Z5.</strong> Dodaj <code>Log.d</code> z jednym wspólnym tagiem przy każdej zmianie fazy gry (<code>phase</code>) i przefiltruj logi w Logcat. Czy na podstawie samych logów da się odtworzyć przebieg tabeli z pytania 7.5?</li></ul>
+      </section>
+    
+      <section class="codelab-step" data-label="Podsumowanie" data-duration="05">
+        <p>Najważniejsze informacje z tego laboratorium:</p>
+<ul><li>Kod źródłowy aplikacji znajduje się w folderze <code>java+kotlin</code>, zasoby (elementy interfejsu graficznego, kolory itp.) przechowywane są w <code>res</code>, a zewnętrzne biblioteki i konfiguracja budowania w plikach <code>build.gradle</code>.</li><li>Układ z użyciem pliku XML (layout) składa się z kontenerów grupujących (<code>ViewGroups</code>) oraz widoków właściwych (<code>Views</code>). Atrybuty elementów możemy zmieniać używając kodu XML lub za pomocą dedykowanego okna projektanta.</li><li>Widoki muszą mieć zdefiniowane atrybuty wymiarów (<code>width</code> i <code>height</code>). Atrybut <code>id</code> używany jest do identyfikowania widoku w kodzie, a przy używaniu <code>ConstraintLayout</code> niezbędne jest zakotwiczenie co najmniej w poziomie i pionie.</li><li>Zaleca się przechowywanie wszystkich ciągów znaków (tekstów) używanych w aplikacji w dedykowanym pliku <code>strings.xml</code>.</li><li>Najważniejsze skróty klawiszowe w Android Studio:</li><li><code>Alt+Enter</code> - menu szybkich akcji / korekt</li><li><code>Shift+F6</code> - zmiana nazwy</li><li><code>Ctrl+Alt+L</code> - formatowanie (układanie) kodu</li><li>Aktywności (Activities) są punktem wejściowym do aplikacji i każda musi być dopisana do <code>AndroidManifest.xml</code>. Aktywność startowa jest wskazana przez <code>intent-filter</code> z <code>MAIN</code> i <code>LAUNCHER</code>. Metoda <code>onCreate</code> zawsze musi być przesłonięta, aby móc poprawnie załadować widok za pomocą <code>setContentView</code>.</li><li>Zmiana konfiguracji (np. obrót ekranu) niszczy i tworzy aktywność od nowa, więc stan zapisany w zwykłych zmiennych jest tracony (<code>onSaveInstanceState</code>, <code>ViewModel</code>).</li><li>Metoda <code>findViewById</code> była tradycyjnie używana do łączenia obiektów z kodem, jednak <strong>View Binding</strong> stanowi jej znacznie lepszy i nowocześniejszy zamiennik.</li><li><strong>Intencje (Intents)</strong> używane są do rozpoczynania nowych Aktywności, a by przesłać pomiędzy nimi proste dane, używamy pól z danymi tzw. Extras. Do wystartowania Aktywności z żądaniem odpowiedzi zwrotnej używa się teraz nowej metody <code>registerForActivityResult</code>.</li><li>Stan logiki (np. faza gry) przechowujemy w zmiennych, a nie w tekście lub wyglądzie widoków.</li><li><code>Logcat</code> jest bardzo użytecznym narzędziem przy odnajdywaniu błędów (debugowaniu).</li><li><code>Snackbar</code> to element używany do wyświetlania krótkich wiadomości pop-up dla użytkownika u dołu ekranu. Może również zawierać w sobie dedykowany przycisk akcji.</li></ul>
+      </section>
+    
+  </div>
+
+  <script src="../../../modern-prettify.js"></script>
+  <script src="../../../theme-toggle.js"></script>
+  <script src="../../../codelab.js"></script>
+</body>
+</html>

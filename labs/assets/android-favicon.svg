@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
+  <style>
+    :root {
+      --android-green: #3DDC84;
+      --eye-color: #ffffff;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --android-green: #78C257;
+        --eye-color: #1c1a24;
+      }
+    }
+    .head {
+      fill: var(--android-green);
+    }
+    .antenna {
+      stroke: var(--android-green);
+      stroke-width: 1.6;
+      stroke-linecap: round;
+    }
+    .eye {
+      fill: var(--eye-color);
+    }
+  </style>
+
+  <!-- Vertically centered group: shifts content down by +3.5px -->
+  <g transform="translate(0, 3.5)">
+    <!-- Antennas -->
+    <line class="antenna" x1="6.8" y1="4.2" x2="4.5" y2="1.5" />
+    <line class="antenna" x1="17.2" y1="4.2" x2="19.5" y2="1.5" />
+
+    <!-- Head Dome -->
+    <path class="head" d="M3.5 13.5h17a8.5 8.5 0 0 0-17 0z" />
+
+    <!-- Eyes -->
+    <circle class="eye" cx="8" cy="9.2" r="1" />
+    <circle class="eye" cx="16" cy="9.2" r="1" />
+  </g>
+</svg>
