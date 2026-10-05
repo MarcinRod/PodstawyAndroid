@@ -540,8 +540,6 @@ private fun resolveDrawable(diceValue: Int): Int {
 <p>W rozszerzeniu aplikacji wykorzystamy mechanizm View Binding. Pozwala ono na prostsze powiązanie kodu z układem (layoutem) z użyciem automatycznie generowanej klasy wiązania (binding class). View binding jest obecnie preferowanym sposobem na uzyskiwanie dostępu do widoków XML w kodzie i zastępuje żmudne używanie metody <code>findViewById</code>. Przejdź do <code>build.gradle.kts (Module :app)</code> i dodaj <code>viewBinding</code> do sekcji <code>android</code>:</p>
 <h4 is-upgraded>build.gradle.kts</h4>
 <pre><code class="language-kotlin">android {
-    namespace = &quot;com.mr.diceroller&quot;
-    compileSdk = 34
     // ...
     buildFeatures {
         viewBinding = true
