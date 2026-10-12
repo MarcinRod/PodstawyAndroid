@@ -4,9 +4,9 @@
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <meta charset="UTF-8">
   <title>Laboratorium 1 - Gra w kości</title>
-  <link rel="icon" type="image/svg+xml" href="../assets/android-favicon.svg">
-  <link rel="stylesheet" href="../assets/material-icons.css">
-  <link rel="stylesheet" href="../css/codelab-soft-brutalism.css">
+  <link rel="icon" type="image/svg+xml" href="../../../assets/android-favicon.svg">
+  <link rel="stylesheet" href="../../../assets/material-icons.css">
+  <link rel="stylesheet" href="../../../codelab-soft-brutalism.css">
 </head>
 <body>
     <div class="codelab"
@@ -15,9 +15,7 @@
       data-author="by Marcin Rodziewicz">
     
       <section class="codelab-step" data-label="Wprowadzenie" data-duration="02">
-        <h3 is-upgraded>TODO:</h3>
-<p>- Dopisać teorię o view binding by można było udzielić odpowiedzi na pytania.</p>
-<p>W tym ćwiczeniu zbudujemy prostą aplikację do rzucania kośćmi pokazującą, jak tworzyć proste układy (layouts) oraz używać Aktywności (Activities) i Intencji (Intents).</p>
+        <p>W tym ćwiczeniu zbudujemy prostą aplikację do rzucania kośćmi pokazującą, jak tworzyć proste układy (layouts) oraz używać Aktywności (Activities) i Intencji (Intents).</p>
 <img src="img/diceRollerPreview.png" alt="img\\diceRollerPreview.png"  width="360.00" />
 <p>W tym ćwiczeniu nauczysz się, jak:</p>
 <ul><li>utworzyć prostą aplikację w Android Studio</li><li>tworzyć interfejs użytkownika (UI) za pomocą <code>ConstraintLayout</code></li><li>tworzyć Aktywności i używać Intencji</li><li>uruchamiać i debugować aplikację</li></ul>
@@ -538,7 +536,8 @@ private fun resolveDrawable(diceValue: Int): Int {
 <h4 is-upgraded>Pytania do kodu</h4>
 <ol><li>Po czym system rozpoznaje aktywność startową? Za co odpowiada akcja <code>MAIN</code>, a za co kategoria <code>LAUNCHER</code>?</li><li>Co zobaczysz w menu aplikacji na urządzeniu, jeśli <code>intent-filter</code> zostanie w <code>MainActivity</code> <strong>i</strong> znajdzie się w <code>MainActivityExtended</code>?</li><li>Usuń <code>intent-filter</code> ze wszystkich aktywności i spróbuj uruchomić aplikację. Jaki komunikat zwraca Android Studio?</li><li>Dlaczego <code>MainActivityExtended</code> ma <code>exported=&quot;true&quot;</code>, a <code>SettingsActivity</code> <code>exported=&quot;false&quot;</code>?</li></ol>
 <h3 is-upgraded>2 Dodawanie View Binding (Wiązanie widoków)</h3>
-<p>W rozszerzeniu aplikacji wykorzystamy mechanizm View Binding. Pozwala ono na prostsze powiązanie kodu z układem (layoutem) z użyciem automatycznie generowanej klasy wiązania (binding class). View binding jest obecnie preferowanym sposobem na uzyskiwanie dostępu do widoków XML w kodzie i zastępuje żmudne używanie metody <code>findViewById</code>. //TODO Przejdź do <code>build.gradle.kts (Module :app)</code> i dodaj <code>viewBinding</code> do sekcji <code>android</code>:</p>
+<p>W rozszerzeniu aplikacji wykorzystamy mechanizm View Binding. Pozwala ono na prostsze powiązanie kodu z układem (layoutem) z użyciem automatycznie generowanej klasy wiązania (binding class). View binding jest obecnie preferowanym sposobem na uzyskiwanie dostępu do widoków XML w kodzie i zastępuje żmudne używanie metody <code>findViewById</code>.</p>
+<p>Przejdź do <code>build.gradle.kts (Module :app)</code> i dodaj <code>viewBinding</code> do sekcji <code>android</code>:</p>
 <h4 is-upgraded>build.gradle.kts</h4>
 <pre><code class="language-kotlin">android {
     namespace = &quot;com.mr.diceroller&quot;
@@ -550,8 +549,6 @@ private fun resolveDrawable(diceValue: Int): Int {
 }
 </code></pre>
 <p>Zsynchronizuj projekt.</p>
-<h4 is-upgraded>Pytania do kodu</h4>
-<ol><li>Jak nazywa się klasa wiązania wygenerowana dla <code>activity_settings.xml</code>? A jak nazwałaby się dla pliku <code>item_dice_row.xml</code>? Jaka jest reguła?</li><li>W <code>activity_main_extended.xml</code> zmieniasz <code>id</code> przycisku z <code>rollButton</code> na <code>rollBtn</code>. Co się stanie z kodem używającym <code>binding.rollButton</code>? A z kodem używającym <code>findViewById&lt;Button&gt;(R.id.rollButton)</code> (zwróć uwagę, że <code>activity_main.xml</code> nadal ma przycisk o takim id)? Kiedy dowiesz się o błędzie w każdym z przypadków?</li><li>Co zwraca <code>binding.root</code> i dlaczego przekazujemy to do <code>setContentView()</code>?</li></ol>
 <h3 is-upgraded>3 Przygotowanie układów (layouts) dla nowych aktywności</h3>
 <p><strong>Dla SettingsActivity (<code>activity_settings.xml</code>)</strong> utwórz układ posiadający:</p>
 <ul><li>Element typu <code>Switch</code> - służący do przełączania funkcji zatrzymania kości (np. <code>id=&quot;@+id/enableHoldSwitch&quot;</code>).</li><li>Element typu <code>Spinner</code> - służący do wyboru ilości kości (np. <code>id=&quot;@+id/numDiceSpinner&quot;</code>).</li><li>Element typu <code>Button</code> - przycisk potwierdzenia (np. <code>id=&quot;@+id/confirmButton&quot;</code>).</li><li><code>TextView</code> - etykieta dla wyboru ilości kości.</li></ul>
@@ -568,8 +565,8 @@ private fun resolveDrawable(diceValue: Int): Int {
 <p><strong>Dla MainActivityExtended (<code>activity_main_extended.xml</code>)</strong> przygotuj:</p>
 <ul><li>Dwa obiekty <code>TextView</code> - do wyświetlania obecnego gracza (<code>id=&quot;@+id/playerLabel&quot;</code>) oraz wyniku rzutu (<code>id=&quot;@+id/rollResultText&quot;</code>).</li><li>Jeden <code>Button</code> - do rzucania (<code>id=&quot;@+id/rollButton&quot;</code>).</li><li>Pięć obiektów <code>ImageView</code> - do wyświetlania kości (<code>dice1Img</code> do <code>dice5Img</code>). Ustaw im atrybut <code>android:tintMode</code> na &quot;multiply&quot;.</li></ul>
 <img src="img/lab1_38.png" alt="img\\lab1_38.png"  width="720.00" />
-<h4 is-upgraded>Pytania do kodu (krok 3)</h4>
-<ol><li><code>SettingsActivity</code> ustawia Spinner przez <code>setSelection(numDice - 2)</code>. Jaka <em>niepisana umowa</em> łączy tę linię z <code>string-array</code> w <code>strings.xml</code>? Co się stanie, jeśli dodasz do tablicy na początku pozycję <code>1</code>?</li><li>★ Kostki mają <code>tintMode=&quot;multiply&quot;</code>, a stan „bez podświetlenia&quot; to kolor <code>white</code>. Jaki kolor będzie miał biały piksel obrazka po pomnożeniu przez <code>white</code>, a jaki przez <code>yellow</code> (R=255, G=255, B=0)? Co stanie się z czarnymi oczkami kostki i dlaczego <code>multiply</code> jest tu lepszy niż zwykłe nałożenie koloru?</li></ol>
+<h4 is-upgraded>Pytania do kodu</h4>
+<ol><li>★ Kostki mają <code>tintMode=&quot;multiply&quot;</code>, a stan „bez podświetlenia&quot; to kolor <code>white</code>. Jaki kolor będzie miał biały piksel obrazka po pomnożeniu przez <code>white</code>, a jaki przez <code>yellow</code> (R=255, G=255, B=0)? Co stanie się z czarnymi oczkami kostki i dlaczego <code>multiply</code> jest tu lepszy niż zwykłe nałożenie koloru?</li></ol>
 <h3 is-upgraded>4 Dodawanie Menu</h3>
 <p>Menu zostanie użyte do uruchamiania <code>SettingsActivity</code>. Utwórz katalog zasobów typu Menu (<code>res -&gt; New -&gt; Android Resource Directory</code>, typ: <em>menu</em>), a w nim plik <code>menu.xml</code> z jednym elementem opcji (Settings). Zobacz jak to zrobić na nagraniu:</p>
 <p><a href="https://putpoznanpl-my.sharepoint.com/:v:/g/personal/marcin_rodziewicz_put_poznan_pl/EQRR9asTx41NqrAid_po488B-AzovNR9XEWPFuLt1-J7Cg?e=Tmrk0h" target="_blank">Dodawanie menu</a></p>
@@ -590,8 +587,6 @@ override fun onOptionsItemSelected(item: MenuItem): Boolean {
 }
 </code></pre>
 <p>Aby wyświetlić menu, musimy przesłonić metodę <code>onCreateOptionsMenu</code> i wskazać docelowy plik zasobów. Wybory użytkownika wyłapujemy, nadpisując <code>onOptionsItemSelected</code>.</p>
-<h4 is-upgraded>Pytania do kodu (krok 4)</h4>
-<ol><li>W <code>menu.xml</code> nadałeś elementowi <code>id</code> <code>action_settings</code>, a w kodzie jest <code>R.id.settings</code>. Co się stanie i kiedy?</li><li>(po zakończeniu kroku 7) Dodaj do menu drugą pozycję „Reset game&quot;, która wywołuje <code>resetGame()</code>.</li></ol>
 <h3 is-upgraded>5 Implementacja nawigacji i przesyłania danych (Intents)</h3>
 <p>Dodajmy do <code>MainActivityExtended.kt</code> deklarację mechanizmu View Binding i podstawowych zmiennych.</p>
 <!-- ZMIANA (8): jeden zestaw importów dla całego pliku, w kodzie krótkie nazwy -->
@@ -654,8 +649,8 @@ private val launchSettingsActivity =
     }
 </code></pre>
 <p>Zmienna <code>launchSettingsActivity</code> zostaje użyta do uruchomienia ustawień oraz nasłuchiwania na odesłany po jej zamknięciu rezultat. Mechanizm <code>registerForActivityResult</code> stanowi część nowego Activity Result API. Ignoruj na razie ostrzeżenia o brakujących funkcjach <code>applySettings</code> - dopiszemy je później.</p>
-<h4 is-upgraded>Pytania do kodu (krok 5)</h4>
-<ol><li>Czym różni się intencja jawna od niejawnej? Dlaczego do uruchomienia <code>SettingsActivity</code> używamy jawnej?</li><li>Klucze (<code>num_dice_key</code>, <code>hold_enable_key</code>) trzymamy w <code>strings.xml</code>. Co się stanie, jeśli w <code>SettingsActivity</code> pomylisz się w kluczu? Czy dostaniesz błąd kompilacji, wyjątek, czy nic? A co, jeśli pomylisz nazwę zasobu <code>R.string.…</code>?</li><li>Użytkownik wchodzi w ustawienia i naciska systemowy przycisk <em>Wstecz</em>. Jaki <code>resultCode</code> trafi do callbacku? Co zrobi callback? Czy pojawi się <code>Snackbar</code>?</li><li>★ Dlaczego <code>launchSettingsActivity</code> jest polem klasy inicjalizowanym przy tworzeniu obiektu, a nie tworzymy go w <code>startSettingsActivity()</code>? Co by się stało przy rejestracji w obsłudze kliknięcia?</li><li>★ Lambda w <code>registerForActivityResult</code> odwołuje się do <code>binding</code>, które jest <code>lateinit</code> i w chwili tworzenia pola jeszcze niezainicjalizowane. Dlaczego aplikacja się nie wysypuje?</li><li>Co oznaczają liczby <code>2</code> i <code>true</code> w <code>getIntExtra(..., 2)</code> oraz <code>getBooleanExtra(..., true)</code>? Kiedy zostaną użyte?</li><li>W <code>startSettingsActivity()</code> zmień <code>putExtra(..., numDice)</code> na <code>putExtra(..., numDice.toString())</code>, nie zmieniając <code>SettingsActivity</code>. Co pokaże Spinner? Co znajdziesz w Logcat?</li></ol>
+<h4 is-upgraded>Pytania do kodu</h4>
+<ol><li>Jak nazywa się klasa wiązania wygenerowana dla <code>activity_settings.xml</code>? A jak nazwałaby się dla pliku <code>item_dice_row.xml</code>? Jaka jest reguła?</li><li>W <code>activity_main_extended.xml</code> zmieniasz <code>id</code> przycisku z <code>rollButton</code> na <code>rollBtn</code>. Co się stanie z kodem używającym <code>binding.rollButton</code>? A z kodem używającym <code>findViewById&lt;Button&gt;(R.id.rollButton)</code> (zwróć uwagę, że <code>activity_main.xml</code> nadal ma przycisk o takim id)? Kiedy dowiesz się o błędzie w każdym z przypadków?</li><li>Co zwraca <code>binding.root</code> i dlaczego przekazujemy to do <code>setContentView()</code>?</li></ol>
 <h3 is-upgraded>6 Aktywność Ustawień (SettingsActivity.kt)</h3>
 <p>W tym kodzie pobieramy intencję przesłaną z <code>MainActivityExtended</code>, nadpisujemy UI odczytanymi zmiennymi i przypisujemy akcję dla przycisku, która zbuduje intencję powrotną:</p>
 <h4 is-upgraded>SettingsActivity.kt</h4>
@@ -700,8 +695,9 @@ private val launchSettingsActivity =
     }
 }
 </code></pre>
-<h4 is-upgraded>Pytania do kodu (krok 6)</h4>
-<ol><li>Skąd w <code>SettingsActivity</code> bierze się zmienna <code>intent</code>? Którą intencję reprezentuje?</li><li>Usuń z obsługi przycisku wywołanie <code>finish()</code>. Co zobaczy użytkownik po kliknięciu „Confirm&quot;? Kiedy (i czy w ogóle) callback w <code>MainActivityExtended</code> otrzyma wynik?</li><li>Przywróć <code>finish()</code>, ale usuń <code>setResult(...)</code>. Jak zachowa się aplikacja i dlaczego?</li><li>★ Czemu wracamy z ustawień przez <code>setResult</code> + <code>finish()</code>, a nie przez <code>startActivity(Intent(this, MainActivityExtended::class.java))</code>? Opisz skutki dla stosu aktywności (back stack) i dla stanu rozpoczętej gry.</li><li>Dlaczego przed <code>.toInt()</code> jest <code>.toString()</code> w <code>binding.numDiceSpinner.selectedItem.toString().toInt()</code>?</li></ol>
+<h4 is-upgraded>Pytania do kodu </h4>
+<ol><li>Skąd w <code>SettingsActivity</code> bierze się zmienna <code>intent</code>? Którą intencję reprezentuje?</li><li>Usuń z obsługi przycisku wywołanie <code>finish()</code>. Co zobaczy użytkownik po kliknięciu „Confirm&quot;? Kiedy (i czy w ogóle) callback w <code>MainActivityExtended</code> otrzyma wynik?</li><li>Przywróć <code>finish()</code>, ale usuń <code>setResult(...)</code>. Jak zachowa się aplikacja i dlaczego?</li><li>★ Czemu wracamy z ustawień przez <code>setResult</code> + <code>finish()</code>, a nie przez <code>startActivity(Intent(this, MainActivityExtended::class.java))</code>? Opisz skutki dla stosu aktywności (back stack) i dla stanu rozpoczętej gry.</li><li>Dlaczego przed <code>.toInt()</code> jest <code>.toString()</code> w <code>binding.numDiceSpinner.selectedItem.toString().toInt()</code>?</li><li>Czym różni się intencja jawna od niejawnej? Dlaczego do uruchomienia <code>SettingsActivity</code> używamy jawnej?</li><li>Klucze (<code>num_dice_key</code>, <code>hold_enable_key</code>) trzymamy w <code>strings.xml</code>. Co się stanie, jeśli w <code>SettingsActivity</code> pomylisz się w kluczu? Czy dostaniesz błąd kompilacji, wyjątek, czy nic? A co, jeśli pomylisz nazwę zasobu <code>R.string.…</code>?</li><li>Użytkownik wchodzi w ustawienia i naciska systemowy przycisk <em>Wstecz</em>. Jaki <code>resultCode</code> trafi do callbacku? Co zrobi callback? Czy pojawi się <code>Snackbar</code>?</li><li>★ Dlaczego <code>launchSettingsActivity</code> jest polem klasy inicjalizowanym przy tworzeniu obiektu, a nie tworzymy go w <code>startSettingsActivity()</code>? Co by się stało przy rejestracji w obsłudze kliknięcia?</li><li>★ Lambda w <code>registerForActivityResult</code> odwołuje się do <code>binding</code>, które jest <code>lateinit</code> i w chwili tworzenia pola jeszcze niezainicjalizowane. Dlaczego aplikacja się nie wysypuje?</li><li>Co oznaczają liczby <code>2</code> i <code>true</code> w <code>getIntExtra(..., 2)</code> oraz <code>getBooleanExtra(..., true)</code>? Kiedy zostaną użyte?</li><li>W <code>startSettingsActivity()</code> zmień <code>putExtra(..., numDice)</code> na <code>putExtra(..., numDice.toString())</code>, nie zmieniając <code>SettingsActivity</code>. Co pokaże Spinner? Co znajdziesz w Logcat?</li></ol>
+<ol start="13"><li>(po zakończeniu kroku 7) Dodaj do menu drugą pozycję „Reset game&quot;, która wywołuje <code>resetGame()</code>.</li></ol>
 <h3 is-upgraded>7 Pełna logika nowej gry (<code>MainActivityExtended.kt</code>)</h3>
 <p>Czas na dopisanie mechaniki gry do <code>MainActivityExtended</code>.</p>
 <!-- ZMIANA (5): osobna zmienna stanu zamiast porównywania tekstu przycisku -->
@@ -918,7 +914,7 @@ private fun endGame() {
 </code></pre>
 <p>Uruchom i przetestuj całą aplikację! Sprawdź w szczególności:</p>
 <ul><li>czy kostki reagują na kliknięcia dopiero po pierwszym rzucie w turze (i przestają reagować po jej zakończeniu),</li><li>czy po wyłączeniu opcji &quot;hold&quot; w ustawieniach kostki nie dają się zatrzymywać, a po ponownym włączeniu znów działają,</li><li>czy mechanika &quot;hold&quot; działa tak samo w turze obu graczy i po rozpoczęciu gry od nowa (<code>Start over</code>).</li></ul>
-<h4 is-upgraded>Pytania do kodu (krok 7)</h4>
+<h4 is-upgraded>Pytania do kodu</h4>
 <p><strong>A. Stan i struktura</strong></p>
 <ol><li><code>diceImgArray</code> jest zadeklarowane z <code>by lazy</code>. Co by się stało, gdybyś zapisał je jako zwykłe <code>private val diceImgArray = arrayOf(binding.dice1Img, ...)</code>? W którym momencie i jaki błąd by wystąpił? Dlaczego <code>lazy</code> to naprawia?</li><li>★ Po co w <code>when (phase)</code> jest gałąź <code>GamePhase.FINISHED -&gt; Unit</code>, skoro „nic nie robi&quot;? Co zrobi kompilator, jeśli ją usuniesz?</li><li>Dlaczego <code>currentPlayer</code> liczymy od 0, a użytkownikowi pokazujemy <code>currentPlayer + 1</code>? W których miejscach kodu ta różnica ma znaczenie?</li></ol>
 <p><strong>B. Śledzenie przebiegu gry</strong></p>
@@ -940,8 +936,8 @@ private fun endGame() {
     
   </div>
 
-  <script src="../scripts/modern-prettify.js"></script>
-  <script src="../scripts/theme-toggle.js"></script>
-  <script src="../scripts/codelab.js"></script>
+  <script src="../../../modern-prettify.js"></script>
+  <script src="../../../theme-toggle.js"></script>
+  <script src="../../../codelab.js"></script>
 </body>
 </html>
