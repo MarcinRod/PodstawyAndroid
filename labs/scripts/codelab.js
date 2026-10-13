@@ -278,6 +278,13 @@
       event.preventDefault();
       root.toggleAttribute('drawer--open');
     });
+    document.addEventListener('click', function (event) {
+      var collapseButtonVisible = window.getComputedStyle(menu).display !== 'none';
+      if (collapseButtonVisible && root.hasAttribute('drawer--open') &&
+          !menu.contains(event.target) && !drawer.contains(event.target)) {
+        root.removeAttribute('drawer--open');
+      }
+    });
     back.addEventListener('click', function (event) {
       event.preventDefault();
       root.removeAttribute('drawer--open');
